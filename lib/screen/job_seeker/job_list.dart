@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:wirwa/data/model.dart';
 import 'package:wirwa/data/repositories.dart';
+import 'package:wirwa/screen/job_seeker/job.dart';
 
 class JobSeekerJobListController extends GetxController {
   final JobVacancyRepository jobVacancyRepository = Get.find();
@@ -19,6 +20,10 @@ class JobSeekerJobListController extends GetxController {
       jobs.insertAll(0, value);
     });
   }
+
+  void toDetail(String id) {
+    Get.to(() => JobSeekerJobPage(), arguments: JobSeekerJobPage.createArguments(id));
+  }
 }
 
 class JobSeekerJobListPage extends StatelessWidget {
@@ -30,9 +35,12 @@ class JobSeekerJobListPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text("Job Seeker Job List")),
-      body: Obx(
-        () => controller.jobs.isEmpty ? const Text("Kosong") : _list(context),
-      )
+      body: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Obx(
+          () => controller.jobs.isEmpty ? const Text("Kosong") : _list(context),
+        ),
+      ),
     );
   }
 
@@ -46,8 +54,13 @@ class JobSeekerJobListPage extends StatelessWidget {
 
   Widget _listTile(BuildContext context, JobVacancy job) {
     return InkWell(
-      onTap: () => {},
-      child: Card(child: Text(job.title)),
+      onTap: () => controller.toDetail(job.id),
+      child: Card(
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Text(job.title),
+        ),
+      ),
     );
   }
 }

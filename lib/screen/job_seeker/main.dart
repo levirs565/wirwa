@@ -3,6 +3,8 @@ import 'package:get/get.dart';
 import 'package:wirwa/screen/job_seeker/job_list.dart';
 import 'package:wirwa/screen/job_seeker/profile.dart';
 
+import 'application_list.dart';
+
 class JobSeekerController extends GetxController {
   final RxInt activePage = 0.obs;
 }
@@ -19,6 +21,7 @@ class JobSeekerPage extends StatelessWidget {
           index: controller.activePage.value,
           children: [
             JobSeekerJobListPage(),
+            JobSeekerApplicationListPage(),
             JobSeekerProfilePage(),
           ],
         ),
@@ -27,6 +30,7 @@ class JobSeekerPage extends StatelessWidget {
             () => NavigationBar(
           destinations: const [
             NavigationDestination(icon: Icon(Icons.home), label: "Home"),
+            NavigationDestination(icon: Icon(Icons.home), label: "Applications"),
             NavigationDestination(icon: Icon(Icons.person), label: "Profile"),
           ],
           selectedIndex: controller.activePage.value,

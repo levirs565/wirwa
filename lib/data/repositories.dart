@@ -39,3 +39,11 @@ abstract interface class JobVacancyRepository {
 
   Future<void> approveAdvertiseRequest(String advertiseRequestId);
 }
+
+abstract interface class JobApplicationRepository {
+  Future<void> add(JobApplication application);
+
+  Future<JobApplication?> get(String jobVacancyId, String jobSeekerId);
+
+  Future<List<JobApplicationWithVacancy>> getAllWithVacancy(String jobSeekerId);
+}

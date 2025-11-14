@@ -4,14 +4,18 @@ part 'model.mapper.dart';
 
 @MappableEnum()
 enum UserRole {
-  @MappableValue("recruiter") RECRUITER,
-  @MappableValue("job_seeker") JOB_SEEKER
+  @MappableValue("recruiter")
+  RECRUITER,
+  @MappableValue("job_seeker")
+  JOB_SEEKER,
 }
 
 @MappableEnum()
 enum UserRecruiterType {
-  @MappableValue("company") COMPANY,
-  @MappableValue("individual") INDIVIDUAL
+  @MappableValue("company")
+  COMPANY,
+  @MappableValue("individual")
+  INDIVIDUAL,
 }
 
 @MappableClass()
@@ -78,11 +82,13 @@ class Workshop with WorkshopMappable {
 
 @MappableEnum()
 enum JobApplicationStatus {
-  @MappableValue("pending") PENDING,
-  @MappableValue("accepted") ACCEPTED,
-  @MappableValue("rejected") REJECTED
+  @MappableValue("pending")
+  PENDING,
+  @MappableValue("accepted")
+  ACCEPTED,
+  @MappableValue("rejected")
+  REJECTED,
 }
-
 
 @MappableClass(caseStyle: CaseStyle.snakeCase)
 class JobApplication with JobApplicationMappable {
@@ -112,5 +118,15 @@ class JobVacancyAdvertiseRequest with JobVacancyAdvertiseRequestMappable {
     required this.createdAt,
     required this.paymentId,
     required this.isApproved,
+  });
+}
+
+class JobApplicationWithVacancy {
+  final JobApplication application;
+  final JobVacancy vacancy;
+
+  JobApplicationWithVacancy({
+    required this.application,
+    required this.vacancy,
   });
 }

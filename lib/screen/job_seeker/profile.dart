@@ -30,11 +30,14 @@ class JobSeekerProfilePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text("Job Seeker Profile")),
-      body: Column(
-        children: [
-          Obx(() => Text(controller.profile.value?.name ?? "")),
-          OutlinedButton(onPressed: controller.logout, child: Text("Logout"))
-        ],
+      body: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          children: [
+            Obx(() => Text(controller.profile.value?.name ?? "")),
+            OutlinedButton(onPressed: controller.logout, child: Text("Logout"))
+          ],
+        ),
       ),
     );
   }
