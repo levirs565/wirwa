@@ -1,9 +1,10 @@
+import 'package:get/get.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:wirwa/data/model.dart';
 import 'package:wirwa/data/repositories.dart';
 
 class JobVacancyDataSource implements JobVacancyRepository {
-  final client = Supabase.instance.client;
+  final client = Get.find<SupabaseClient>();
 
   @override
   Future<void> add(JobVacancy job) {

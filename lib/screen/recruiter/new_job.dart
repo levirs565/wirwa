@@ -1,12 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:wirwa/data/model.dart';
 import 'package:wirwa/data/repositories.dart';
-import 'package:wirwa/screen/recruiter/main.dart';
 
 class RecruiterNewJobController extends GetxController {
+  final AuthRepository authRepository = Get.find();
   final JobVacancyRepository vacancyRepository = Get.find();
   final Rx<String> title = "".obs;
   final Rx<String?> titleError = Rxn(null);
@@ -68,7 +67,7 @@ class RecruiterNewJobController extends GetxController {
         description: description.value,
         startDate: DateTime.now(),
         endDate: null,
-        recruiterId: Supabase.instance.client.auth.currentUser!.id,
+        recruiterId: authRepository.getUserId()!,
       ),
     );
     Get.back();

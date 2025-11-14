@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:wirwa/data/model.dart';
 import 'package:wirwa/data/repositories.dart';
 import 'package:wirwa/screen/recruiter/new_job.dart';
 
 class RecruiterJobListController extends GetxController {
+  final AuthRepository authRepository = Get.find();
   final JobVacancyRepository jobVacancyRepository = Get.find();
   final RxList<JobVacancy> jobs = <JobVacancy>[].obs;
 
@@ -17,10 +17,7 @@ class RecruiterJobListController extends GetxController {
 
   void refresh() {
     jobVacancyRepository
-        .getAll(
-          recruiterIdFilter:
-              Supabase.instance.client.auth.currentUser?.id ?? "",
-        )
+        .getAll(recruiterIdFilter: authRepository.getUserId())
         .then((value) {
           jobs.clear();
           jobs.insertAll(0, value);

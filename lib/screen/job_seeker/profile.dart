@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_sign_in/google_sign_in.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:wirwa/data/model.dart';
 import 'package:wirwa/data/repositories.dart';
-import 'package:wirwa/screen/login.dart';
 
 class JobSeekerProfileController extends GetxController {
+  final AuthRepository authRepository = Get.find();
   final UserRepository userRepository = Get.find();
   final Rx<UserJobSeeker?> profile = Rxn();
 
@@ -14,17 +12,14 @@ class JobSeekerProfileController extends GetxController {
   void onReady() {
     super.onReady();
     userRepository
-        .getJobSeekerProfile(Supabase.instance.client.auth.currentUser!.id)
+        .getJobSeekerProfile(authRepository.getUserId()!)
         .then((value) {
           profile.value = value;
     });
   }
 
   Future<void> logout() async {
-    await Supabase.instance.client.auth.signOut();
-    GoogleSignIn.instance.signOut();
-    GoogleSignIn.instance.disconnect();
-    Get.offAll(LoginPage());
+    await authRepository.signOut();
   }
 }
 

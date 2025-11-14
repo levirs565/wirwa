@@ -1,5 +1,12 @@
 import 'package:wirwa/data/model.dart';
 
+abstract interface class AuthRepository {
+  Stream<String?> userChangedStream();
+  String? getUserId();
+  Future<void> login();
+  Future<void> signOut();
+}
+
 abstract interface class UserRepository {
   Future<UserRole?> getUserRole(String id);
   Future<void> setUserRole(String id, UserRole role);

@@ -1,13 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:wirwa/data/model.dart';
 import 'package:wirwa/data/repositories.dart';
 import 'package:wirwa/screen/job_seeker/main.dart';
-import 'package:wirwa/screen/recruiter/main.dart';
 
 class JobSeekerNewProfileController extends GetxController {
+  final AuthRepository authRepository = Get.find();
   final UserRepository userRepository = Get.find();
   final Rx<String> name = "".obs;
   final Rx<String?> nameError = Rxn(null);
@@ -62,7 +61,7 @@ class JobSeekerNewProfileController extends GetxController {
   Future<void> onSubmit() async {
     await userRepository.setJobSeekerProfile(
       UserJobSeeker(
-        id: Supabase.instance.client.auth.currentUser?.id ?? "",
+        id: authRepository.getUserId()!,
         birthDate: DateTime.now(),
         domisili: domisili.value,
         name: name.value,

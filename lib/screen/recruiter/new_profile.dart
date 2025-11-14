@@ -1,12 +1,11 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:wirwa/data/model.dart';
 import 'package:wirwa/data/repositories.dart';
 import 'package:wirwa/screen/recruiter/main.dart';
 
 class RecruiterNewProfileController extends GetxController {
+  final AuthRepository authRepository = Get.find();
   final UserRepository userRepository = Get.find();
   final Rx<UserRecruiterType?> type = Rxn(null);
   final Rx<String?> typeError = Rxn(null);
@@ -45,7 +44,7 @@ class RecruiterNewProfileController extends GetxController {
   Future<void> onSubmit() async {
     await userRepository.setRecruiterProfile(
       UserRecruiter(
-        id: Supabase.instance.client.auth.currentUser?.id ?? "",
+        id: authRepository.getUserId()!,
         type: type.value!,
         name: name.value,
       ),
