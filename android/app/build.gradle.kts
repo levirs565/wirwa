@@ -10,6 +10,15 @@ android {
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
+    signingConfigs  {
+        getByName("debug") {
+            storeFile = file("../keystore.jks")
+            storePassword = "wirwaitc"
+            keyAlias = "debug"
+            keyPassword = "wirwaitc"
+        }
+    }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
