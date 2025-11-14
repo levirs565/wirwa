@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:wirwa/data/model.dart';
 import 'package:wirwa/data/repositories.dart';
+import 'package:wirwa/screen/recruiter/job.dart';
 import 'package:wirwa/screen/recruiter/new_job.dart';
 
 class RecruiterJobListController extends GetxController {
@@ -28,6 +29,14 @@ class RecruiterJobListController extends GetxController {
     await Get.to(RecruiterNewJobPage());
     refresh();
   }
+
+  Future<void> toDetail(String id) async {
+    await Get.to(
+      () => RecruiterJobPage(),
+      arguments: RecruiterJobPage.createArguments(id),
+    );
+    refresh();
+  }
 }
 
 class RecruiterJobListPage extends StatelessWidget {
@@ -39,10 +48,16 @@ class RecruiterJobListPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text("Recruiter Job List")),
-      body: Obx(
-        () => controller.jobs.isEmpty ? const Text("Kosong") : _list(context),
+      body: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Obx(
+          () => controller.jobs.isEmpty ? const Text("Kosong") : _list(context),
+        ),
       ),
-      floatingActionButton: FloatingActionButton(onPressed: controller.newJob),
+      floatingActionButton: FloatingActionButton(
+        onPressed: controller.newJob,
+        child: Icon(Icons.add),
+      ),
     );
   }
 
@@ -50,14 +65,19 @@ class RecruiterJobListPage extends StatelessWidget {
     return ListView.builder(
       itemCount: controller.jobs.length,
       itemBuilder: (context, index) =>
-          _listTile(context, controller.jobs[index]),
+          _listItem(context, controller.jobs[index]),
     );
   }
 
-  Widget _listTile(BuildContext context, JobVacancy job) {
+  Widget _listItem(BuildContext context, JobVacancy job) {
     return InkWell(
-      onTap: () => {},
-      child: Card(child: Text(job.title)),
+      onTap: () => controller.toDetail(job.id),
+      child: Card(
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Text(job.title),
+        ),
+      ),
     );
   }
 }

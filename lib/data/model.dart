@@ -52,6 +52,8 @@ class JobVacancy with JobVacancyMappable {
   final DateTime? endDate;
   final String recruiterId;
 
+  // TODO: Salary
+
   JobVacancy({
     required this.id,
     required this.createdAt,
@@ -97,6 +99,8 @@ class JobApplication with JobApplicationMappable {
   final JobApplicationStatus status;
   final String jobVacancyId, jobSeekerId;
 
+  // TODO: CV?
+
   JobApplication({
     required this.id,
     required this.createdAt,
@@ -125,8 +129,19 @@ class JobApplicationWithVacancy {
   final JobApplication application;
   final JobVacancy vacancy;
 
-  JobApplicationWithVacancy({
-    required this.application,
-    required this.vacancy,
-  });
+  JobApplicationWithVacancy({required this.application, required this.vacancy});
+}
+
+@MappableClass(caseStyle: CaseStyle.snakeCase)
+class UserJobSeekerMinimal with UserJobSeekerMinimalMappable {
+  final String pictureUrl, name;
+
+  UserJobSeekerMinimal({required this.pictureUrl, required this.name});
+}
+
+class JobApplicationWithSeeker {
+  final JobApplication application;
+  final UserJobSeekerMinimal seeker;
+
+  JobApplicationWithSeeker({required this.application, required this.seeker});
 }

@@ -1192,3 +1192,145 @@ class _JobVacancyAdvertiseRequestCopyWithImpl<$R, $Out>
       _JobVacancyAdvertiseRequestCopyWithImpl<$R2, $Out2>($value, $cast, t);
 }
 
+class UserJobSeekerMinimalMapper extends ClassMapperBase<UserJobSeekerMinimal> {
+  UserJobSeekerMinimalMapper._();
+
+  static UserJobSeekerMinimalMapper? _instance;
+  static UserJobSeekerMinimalMapper ensureInitialized() {
+    if (_instance == null) {
+      MapperContainer.globals.use(_instance = UserJobSeekerMinimalMapper._());
+    }
+    return _instance!;
+  }
+
+  @override
+  final String id = 'UserJobSeekerMinimal';
+
+  static String _$pictureUrl(UserJobSeekerMinimal v) => v.pictureUrl;
+  static const Field<UserJobSeekerMinimal, String> _f$pictureUrl = Field(
+    'pictureUrl',
+    _$pictureUrl,
+    key: r'picture_url',
+  );
+  static String _$name(UserJobSeekerMinimal v) => v.name;
+  static const Field<UserJobSeekerMinimal, String> _f$name = Field(
+    'name',
+    _$name,
+  );
+
+  @override
+  final MappableFields<UserJobSeekerMinimal> fields = const {
+    #pictureUrl: _f$pictureUrl,
+    #name: _f$name,
+  };
+
+  static UserJobSeekerMinimal _instantiate(DecodingData data) {
+    return UserJobSeekerMinimal(
+      pictureUrl: data.dec(_f$pictureUrl),
+      name: data.dec(_f$name),
+    );
+  }
+
+  @override
+  final Function instantiate = _instantiate;
+
+  static UserJobSeekerMinimal fromMap(Map<String, dynamic> map) {
+    return ensureInitialized().decodeMap<UserJobSeekerMinimal>(map);
+  }
+
+  static UserJobSeekerMinimal fromJson(String json) {
+    return ensureInitialized().decodeJson<UserJobSeekerMinimal>(json);
+  }
+}
+
+mixin UserJobSeekerMinimalMappable {
+  String toJson() {
+    return UserJobSeekerMinimalMapper.ensureInitialized()
+        .encodeJson<UserJobSeekerMinimal>(this as UserJobSeekerMinimal);
+  }
+
+  Map<String, dynamic> toMap() {
+    return UserJobSeekerMinimalMapper.ensureInitialized()
+        .encodeMap<UserJobSeekerMinimal>(this as UserJobSeekerMinimal);
+  }
+
+  UserJobSeekerMinimalCopyWith<
+    UserJobSeekerMinimal,
+    UserJobSeekerMinimal,
+    UserJobSeekerMinimal
+  >
+  get copyWith =>
+      _UserJobSeekerMinimalCopyWithImpl<
+        UserJobSeekerMinimal,
+        UserJobSeekerMinimal
+      >(this as UserJobSeekerMinimal, $identity, $identity);
+  @override
+  String toString() {
+    return UserJobSeekerMinimalMapper.ensureInitialized().stringifyValue(
+      this as UserJobSeekerMinimal,
+    );
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return UserJobSeekerMinimalMapper.ensureInitialized().equalsValue(
+      this as UserJobSeekerMinimal,
+      other,
+    );
+  }
+
+  @override
+  int get hashCode {
+    return UserJobSeekerMinimalMapper.ensureInitialized().hashValue(
+      this as UserJobSeekerMinimal,
+    );
+  }
+}
+
+extension UserJobSeekerMinimalValueCopy<$R, $Out>
+    on ObjectCopyWith<$R, UserJobSeekerMinimal, $Out> {
+  UserJobSeekerMinimalCopyWith<$R, UserJobSeekerMinimal, $Out>
+  get $asUserJobSeekerMinimal => $base.as(
+    (v, t, t2) => _UserJobSeekerMinimalCopyWithImpl<$R, $Out>(v, t, t2),
+  );
+}
+
+abstract class UserJobSeekerMinimalCopyWith<
+  $R,
+  $In extends UserJobSeekerMinimal,
+  $Out
+>
+    implements ClassCopyWith<$R, $In, $Out> {
+  $R call({String? pictureUrl, String? name});
+  UserJobSeekerMinimalCopyWith<$R2, $In, $Out2> $chain<$R2, $Out2>(
+    Then<$Out2, $R2> t,
+  );
+}
+
+class _UserJobSeekerMinimalCopyWithImpl<$R, $Out>
+    extends ClassCopyWithBase<$R, UserJobSeekerMinimal, $Out>
+    implements UserJobSeekerMinimalCopyWith<$R, UserJobSeekerMinimal, $Out> {
+  _UserJobSeekerMinimalCopyWithImpl(super.value, super.then, super.then2);
+
+  @override
+  late final ClassMapperBase<UserJobSeekerMinimal> $mapper =
+      UserJobSeekerMinimalMapper.ensureInitialized();
+  @override
+  $R call({String? pictureUrl, String? name}) => $apply(
+    FieldCopyWithData({
+      if (pictureUrl != null) #pictureUrl: pictureUrl,
+      if (name != null) #name: name,
+    }),
+  );
+  @override
+  UserJobSeekerMinimal $make(CopyWithData data) => UserJobSeekerMinimal(
+    pictureUrl: data.get(#pictureUrl, or: $value.pictureUrl),
+    name: data.get(#name, or: $value.name),
+  );
+
+  @override
+  UserJobSeekerMinimalCopyWith<$R2, UserJobSeekerMinimal, $Out2>
+  $chain<$R2, $Out2>(Then<$Out2, $R2> t) =>
+      _UserJobSeekerMinimalCopyWithImpl<$R2, $Out2>($value, $cast, t);
+}
+

@@ -81,43 +81,46 @@ class RecruiterNewJobPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text("New Job")),
-      body: Column(
-        children: [
-          Obx(
-            () => TextField(
-              onChanged: controller.setTitle,
-              decoration: InputDecoration(
-                labelText: "Title",
-                errorText: controller.titleError.value,
+      body: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          children: [
+            Obx(
+              () => TextField(
+                onChanged: controller.setTitle,
+                decoration: InputDecoration(
+                  labelText: "Title",
+                  errorText: controller.titleError.value,
+                ),
               ),
             ),
-          ),
-          Obx(
-            () => TextField(
-              onChanged: controller.setLocation,
-              decoration: InputDecoration(
-                labelText: "Location",
-                errorText: controller.locationError.value,
+            Obx(
+              () => TextField(
+                onChanged: controller.setLocation,
+                decoration: InputDecoration(
+                  labelText: "Location",
+                  errorText: controller.locationError.value,
+                ),
               ),
             ),
-          ),
-          Obx(
-            () => TextField(
-              maxLines: null,
-              onChanged: controller.setDescription,
-              decoration: InputDecoration(
-                labelText: "Description",
-                errorText: controller.descriptionError.value,
+            Obx(
+              () => TextField(
+                maxLines: null,
+                onChanged: controller.setDescription,
+                decoration: InputDecoration(
+                  labelText: "Description",
+                  errorText: controller.descriptionError.value,
+                ),
               ),
             ),
-          ),
-          Obx(
-            () => OutlinedButton(
-              onPressed: controller.canSubmit ? controller.onSubmit : null,
-              child: const Text("Submit"),
+            Obx(
+              () => OutlinedButton(
+                onPressed: controller.canSubmit ? controller.onSubmit : null,
+                child: const Text("Submit"),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

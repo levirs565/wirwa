@@ -45,5 +45,11 @@ abstract interface class JobApplicationRepository {
 
   Future<JobApplication?> get(String jobVacancyId, String jobSeekerId);
 
+  Future<JobApplication?> getById(String id);
+
   Future<List<JobApplicationWithVacancy>> getAllWithVacancy(String jobSeekerId);
+
+  Future<List<JobApplicationWithSeeker>> getAllWithSeeker(String jobVacancyId);
+
+  Future<void> setState(String id, JobApplicationStatus state);
 }
