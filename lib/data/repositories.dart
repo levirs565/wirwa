@@ -6,17 +6,17 @@ abstract interface class UserRepository {
   Future<UserRecruiter?> getRecruiterProfile(String id);
   Future<void> setJobSeekerProfile(UserJobSeeker recruiter);
   Future<UserJobSeeker?> getJobSeekerProfile(String id);
-  Future<void> setRecruiterProfile(UserRecruiter recruiter);
+  Future<void> setRecruiterProfile(UserRecruiter user);
 }
 
 abstract interface class JobVacancyRepository {
   /**
-   * Warning: id, createdAt, recruitedId is ignored
+   * Warning: id, createdAt, recruiterId is ignored
    */
   Future<void> add(JobVacancy job);
 
   /**
-   * Warning: createdAt, recruitedId is ignored
+   * Warning: createdAt, recruiterId is ignored
    */
   Future<void> update(JobVacancy job);
 

@@ -1,11 +1,21 @@
+import 'package:dart_mappable/dart_mappable.dart';
+
+part 'model.mapper.dart';
+
+@MappableEnum()
 enum UserRole {
-  RECRUITER,
-  JOB_SEEKER
+  @MappableValue("recruiter") RECRUITER,
+  @MappableValue("job_seeker") JOB_SEEKER
 }
 
-enum UserRecruiterType { COMPANY,INDIVIDUAL }
+@MappableEnum()
+enum UserRecruiterType {
+  @MappableValue("company") COMPANY,
+  @MappableValue("individual") INDIVIDUAL
+}
 
-class UserRecruiter {
+@MappableClass()
+class UserRecruiter with UserRecruiterMappable {
   final String id;
   final UserRecruiterType type;
   final String name;
@@ -13,7 +23,8 @@ class UserRecruiter {
   UserRecruiter({required this.id, required this.type, required this.name});
 }
 
-class UserJobSeeker {
+@MappableClass(caseStyle: CaseStyle.snakeCase)
+class UserJobSeeker with UserJobSeekerMappable {
   final String id, pictureUrl;
   final DateTime birthDate;
   final String domisili, name, phoneNumber;
@@ -28,7 +39,8 @@ class UserJobSeeker {
   });
 }
 
-class JobVacancy {
+@MappableClass(caseStyle: CaseStyle.snakeCase)
+class JobVacancy with JobVacancyMappable {
   final String id;
   final DateTime createdAt;
   final String title, location, description;
@@ -48,7 +60,8 @@ class JobVacancy {
   });
 }
 
-class Workshop {
+@MappableClass(caseStyle: CaseStyle.snakeCase)
+class Workshop with WorkshopMappable {
   final String id;
   final DateTime createdAt;
   final String title, description, formUrl, recruiterId;
@@ -63,9 +76,16 @@ class Workshop {
   });
 }
 
-enum JobApplicationStatus { pending, accepted, rejected }
+@MappableEnum()
+enum JobApplicationStatus {
+  @MappableValue("pending") PENDING,
+  @MappableValue("accepted") ACCEPTED,
+  @MappableValue("rejected") REJECTED
+}
 
-class JobApplication {
+
+@MappableClass(caseStyle: CaseStyle.snakeCase)
+class JobApplication with JobApplicationMappable {
   final String id;
   final DateTime createdAt;
   final JobApplicationStatus status;
@@ -80,7 +100,8 @@ class JobApplication {
   });
 }
 
-class JobVacancyAdvertiseRequest {
+@MappableClass(caseStyle: CaseStyle.snakeCase)
+class JobVacancyAdvertiseRequest with JobVacancyAdvertiseRequestMappable {
   final String id;
   final DateTime createdAt;
   final String paymentId;

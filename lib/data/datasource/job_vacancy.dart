@@ -5,37 +5,21 @@ import 'package:wirwa/data/repositories.dart';
 class JobVacancyDataSource implements JobVacancyRepository {
   final client = Supabase.instance.client;
 
-  static JobVacancy fromMap(Map<String, dynamic> map) {
-    return JobVacancy(
-      id: map["id"] as String,
-      createdAt: DateTime.parse(map["created_at"] as String),
-      title: map["title"] as String,
-      location: map["location"] as String,
-      description: map["description"] as String,
-      startDate: DateTime.parse(map["start_date"] as String),
-      endDate: map["end_date"] == null ? null : DateTime.parse(map["end_date"] as String),
-      recruiterId: map["recruiter_id"] as String,
-    );
-  }
-
-  static Map<String, dynamic> toMap(JobVacancy vacancy) {
-    return {
-      "title": vacancy.title,
-      "location": vacancy.location,
-      "description": vacancy.description,
-      "start_date": vacancy.startDate.toIso8601String(),
-      "end_date": vacancy.endDate?.toIso8601String(),
-    };
-  }
-
   @override
   Future<void> add(JobVacancy job) {
-    return client.from("job_vacancy").insert(toMap(job));
+    final data = job.toMap();
+    data.remove("id");
+    data.remove("created_at");
+    data.remove("recruiter_id");
+    return client.from("job_vacancy").insert(data);
   }
 
   @override
   Future<void> update(JobVacancy job) {
-    return client.from("job_vacancy").update(toMap(job)).eq("id", job.id);
+    final data = job.toMap();
+    data.remove("created_at");
+    data.remove("recruiter_id");
+    return client.from("job_vacancy").update(data).eq("id", job.id);
   }
 
   @override
@@ -50,7 +34,7 @@ class JobVacancyDataSource implements JobVacancyRepository {
       query = query.eq("recruiter_id", recruiterIdFilter);
     }
     final data = await query.order("created_at", ascending: false);
-    return data.map((data) => fromMap(data)).toList();
+    return data.map((data) => JobVacancyMapper.fromMap(data)).toList();
   }
 
   @override
@@ -61,7 +45,7 @@ class JobVacancyDataSource implements JobVacancyRepository {
         .select("job_vacancy(*)")
         .eq("is_approved", true)
         .order("job_vacancy.created_at", ascending: false);
-    return data.map((data) => fromMap(data)).toList();
+    return data.map((data) => JobVacancyMapper.fromMap(data)).toList();
   }
 
   @override
@@ -72,7 +56,7 @@ class JobVacancyDataSource implements JobVacancyRepository {
         .eq("id", id)
         .maybeSingle();
     if (data == null) return null;
-    return fromMap(data);
+    return JobVacancyMapper.fromMap(data);
   }
 
   @override
