@@ -2,17 +2,25 @@ import 'package:wirwa/data/model.dart';
 
 abstract interface class AuthRepository {
   Stream<String?> userChangedStream();
+
   String? getUserId();
+
   Future<void> login();
+
   Future<void> signOut();
 }
 
 abstract interface class UserRepository {
   Future<UserRole?> getUserRole(String id);
+
   Future<void> setUserRole(String id, UserRole role);
+
   Future<UserRecruiter?> getRecruiterProfile(String id);
+
   Future<void> setJobSeekerProfile(UserJobSeeker recruiter);
+
   Future<UserJobSeeker?> getJobSeekerProfile(String id);
+
   Future<void> setRecruiterProfile(UserRecruiter user);
 }
 
@@ -52,4 +60,14 @@ abstract interface class JobApplicationRepository {
   Future<List<JobApplicationWithSeeker>> getAllWithSeeker(String jobVacancyId);
 
   Future<void> setState(String id, JobApplicationStatus state);
+}
+
+abstract interface class WorkshopRepository {
+  Future<void> add(Workshop workshop);
+
+  Future<Workshop?> getById(String id);
+
+  Future<List<Workshop>> getByRecruiterId(String recruiterId);
+
+  Future<List<WorkshopWithRecruiter>> getAll();
 }

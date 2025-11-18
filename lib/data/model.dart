@@ -145,3 +145,12 @@ class JobApplicationWithSeeker {
 
   JobApplicationWithSeeker({required this.application, required this.seeker});
 }
+
+class WorkshopWithRecruiter {
+  final Workshop workshop;
+  final UserRecruiter recruiter;
+
+  WorkshopWithRecruiter({required this.workshop, required this.recruiter});
+}
+
+

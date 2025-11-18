@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:wirwa/screen/recruiter/workshop.dart';
 
 import 'job_list.dart';
 import 'profile.dart';
+import 'workshop_list.dart';
 
 class RecruiterController extends GetxController {
   final RxInt activePage = 0.obs;

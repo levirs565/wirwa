@@ -13,6 +13,7 @@ import 'package:wirwa/data/repositories.dart';
 import 'package:wirwa/screen/login.dart';
 
 import 'data/datasource/job_application.dart';
+import 'data/datasource/workshop.dart';
 import 'data/model.dart';
 import 'screen/job_seeker/main.dart';
 import 'screen/job_seeker/new_profile.dart';
@@ -23,9 +24,10 @@ Future<void> main() async {
   await Supabase.initialize(url: SUPABASE_URL, anonKey: SUPABASE_API_KEY);
   Get.put<SupabaseClient>(Supabase.instance.client, permanent: true);
   Get.put<AuthRepository>(AuthDataSource(), permanent: true);
+  Get.put<UserRepository>(UserDataSource(), permanent: true);
   Get.put<JobVacancyRepository>(JobVacancyDataSource(), permanent: true);
   Get.put<JobApplicationRepository>(JobApplicationDataSource(), permanent: true);
-  Get.put<UserRepository>(UserDataSource(), permanent: true);
+  Get.put<WorkshopRepository>(WorkshopDataSource(), permanent: true);
   Get.put(WirwaController(), permanent: true);
   runApp(const WirwaApp());
 }

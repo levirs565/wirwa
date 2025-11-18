@@ -11,7 +11,6 @@ class JobVacancyDataSource implements JobVacancyRepository {
     final data = job.toMap();
     data.remove("id");
     data.remove("created_at");
-    data.remove("recruiter_id");
     return client.from("job_vacancy").insert(data);
   }
 
