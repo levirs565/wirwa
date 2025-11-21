@@ -1,76 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:wirwa/data/model.dart';
-import 'package:wirwa/data/repositories.dart';
-import 'package:wirwa/screen/recruiter/main.dart';
 
-class RecruiterNewProfileController extends GetxController {
-  final AuthRepository authRepository = Get.find();
-  final UserRepository userRepository = Get.find();
-
-  // --- Form Variables ---
-  // Kita set default type ke COMPANY karena UI ini khusus "Buat Perusahaan Baru"
-  final Rx<UserRecruiterType> type = UserRecruiterType.COMPANY.obs;
-
-  final RxString companyName = "".obs;
-  final RxString industry = "".obs;
-  final RxString companySize = "".obs;
-  final RxString description = "".obs;
-  final RxString location = "".obs;
-  final RxString address = "".obs;
-
-  // --- Validation ---
-  bool get canSubmit =>
-      companyName.value.isNotEmpty &&
-          industry.value.isNotEmpty &&
-          companySize.value.isNotEmpty &&
-          description.value.isNotEmpty &&
-          location.value.isNotEmpty &&
-          address.value.isNotEmpty;
+class RecruiterEditCompanyController extends GetxController {
+  // --- Form Variables (Dummy Data) ---
+  final RxString companyName = "PT Pisang Kemul".obs; // Pre-filled dummy
+  final RxString industry = "F & B".obs;
+  final RxString companySize = "11 - 50 Karyawan".obs;
+  final RxString description = "Perusahaan yang bergerak di bidang kuliner pisang.".obs;
+  final RxString location = "Jakarta Selatan".obs;
+  final RxString address = "Jl. H. Nawi Raya No. 10".obs;
 
   // --- Dummy Data untuk Dropdown ---
   final List<String> industryList = ["Teknologi", "Kesehatan", "Pendidikan", "Keuangan", "F & B", "Retail"];
   final List<String> sizeList = ["1 - 10 Karyawan", "11 - 50 Karyawan", "51 - 200 Karyawan", "201 - 500 Karyawan", "500+ Karyawan"];
 
-  @override
-  void onReady() {
-    super.onReady();
-    resetForm();
-  }
-
-  void resetForm() {
-    companyName.value = "";
-    industry.value = "";
-    companySize.value = "";
-    description.value = "";
-    location.value = "";
-    address.value = "";
-  }
-
-  // --- Logic Submit ---
-  Future<void> onSubmit() async {
-    if (!canSubmit) return;
-
-    // NOTE: Karena Model 'UserRecruiter' saat ini hanya punya field 'name', 'id', dan 'type',
-    // data detail lainnya (Industri, Alamat, dll) belum bisa disimpan ke database secara terpisah.
-    // Solusi sementara: Kita simpan Nama Perusahaan saja, atau gabungkan info ke field name (tidak disarankan).
-
-    try {
-      await userRepository.setRecruiterProfile(
-        UserRecruiter(
-          id: authRepository.getUserId()!,
-          type: type.value,
-          name: companyName.value,
-          // email/phone/photoUrl tidak ada di model UserRecruiter saat ini
-        ),
-      );
-
-      // Navigasi ke Halaman Utama Recruiter setelah simpan
-      Get.offAll(() => RecruiterPage());
-      Get.snackbar("Sukses", "Profil Perusahaan Berhasil Dibuat", backgroundColor: Colors.green, colorText: Colors.white);
-    } catch (e) {
-      Get.snackbar("Error", "Gagal menyimpan profil: $e", backgroundColor: Colors.red, colorText: Colors.white);
-    }
+  // --- Logic Simpan ---
+  void saveChanges() {
+    // Disini nanti logika simpan ke API/Firebase
+    Get.back();
+    Get.snackbar(
+        "Berhasil",
+        "Data perusahaan berhasil diperbarui",
+        backgroundColor: Colors.green,
+        colorText: Colors.white,
+        snackPosition: SnackPosition.BOTTOM,
+        margin: const EdgeInsets.all(16)
+    );
   }
 
   // Helper BottomSheet
@@ -106,10 +61,10 @@ class RecruiterNewProfileController extends GetxController {
   }
 }
 
-class RecruiterNewProfilePage extends StatelessWidget {
-  final controller = Get.put(RecruiterNewProfileController());
+class RecruiterEditCompanyPage extends StatelessWidget {
+  final controller = Get.put(RecruiterEditCompanyController());
 
-  RecruiterNewProfilePage({super.key});
+  RecruiterEditCompanyPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -118,16 +73,13 @@ class RecruiterNewProfilePage extends StatelessWidget {
       body: SafeArea(
         child: Column(
           children: [
-            // --- HEADER (Title & Back Button) ---
+            // --- HEADER ---
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
               child: Row(
                 children: [
                   InkWell(
-                    onTap: () {
-                      // Logout atau Back ke login jika user membatalkan pembuatan profil
-                      controller.authRepository.signOut();
-                    },
+                    onTap: () => Get.back(),
                     child: Container(
                       padding: const EdgeInsets.all(8),
                       decoration: const BoxDecoration(
@@ -140,7 +92,7 @@ class RecruiterNewProfilePage extends StatelessWidget {
                   const Expanded(
                     child: Center(
                       child: Text(
-                        "Buat Perusahaan Baru",
+                        "Edit Data Perusahaan",
                         style: TextStyle(
                           color: Color(0xFFA01355),
                           fontSize: 20,
@@ -154,14 +106,16 @@ class RecruiterNewProfilePage extends StatelessWidget {
               ),
             ),
 
-            // --- SCROLLABLE FORM ---
+            // --- FORM CONTENT ---
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.symmetric(horizontal: 24),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // LOGO PLACEHOLDER
+                    const SizedBox(height: 10),
+
+                    // LOGO + EDIT ICON
                     Center(
                       child: Stack(
                         children: [
@@ -169,11 +123,14 @@ class RecruiterNewProfilePage extends StatelessWidget {
                             width: 100,
                             height: 100,
                             decoration: const BoxDecoration(
-                              color: Color(0xFFE0E0E0), // Abu-abu placeholder
+                              color: Color(0xFFE0E0E0), // Abu-abu placeholder (atau ganti gambar)
                               shape: BoxShape.circle,
                             ),
                             child: const Center(
-                              child: Text("LOGO", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18)),
+                              child: Text(
+                                  "LOGO",
+                                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18)
+                              ),
                             ),
                           ),
                           Positioned(
@@ -182,7 +139,7 @@ class RecruiterNewProfilePage extends StatelessWidget {
                             child: Container(
                               padding: const EdgeInsets.all(6),
                               decoration: BoxDecoration(
-                                color: const Color(0xFFE91E63),
+                                color: const Color(0xFFE91E63), // Pink cerah
                                 shape: BoxShape.circle,
                                 border: Border.all(color: Colors.white, width: 2),
                               ),
@@ -194,19 +151,20 @@ class RecruiterNewProfilePage extends StatelessWidget {
                     ),
                     const SizedBox(height: 30),
 
-                    // SECTION: Info Perusahaan
+                    // INFO PERUSAHAAN
                     _buildSectionTitle("Info Perusahaan"),
 
                     _buildLabel("Nama Perusahaan", isRequired: true),
                     _buildTextInput(
                       hint: "Masukan nama perusahaan",
+                      initialValue: controller.companyName.value,
                       onChanged: (v) => controller.companyName.value = v,
                     ),
 
                     _buildLabel("Industri", isRequired: true),
                     _buildDropdownInput(
                       controller.industry,
-                      "Tambahkan Industri",
+                      "Tambahkan industri",
                           () => controller.showSelectionSheet("Industri", controller.industryList, controller.industry),
                     ),
 
@@ -220,55 +178,53 @@ class RecruiterNewProfilePage extends StatelessWidget {
                     _buildLabel("Deskripsi Perusahaan", isRequired: true),
                     _buildTextInput(
                       hint: "Jelaskan tentang perusahaan Anda",
+                      initialValue: controller.description.value,
                       onChanged: (v) => controller.description.value = v,
                     ),
 
                     const SizedBox(height: 10),
 
-                    // SECTION: Lokasi
+                    // LOKASI
                     _buildSectionTitle("Lokasi"),
 
                     _buildLabel("Lokasi", isRequired: true),
                     _buildTextInput(
                       hint: "Masukan lokasi perusahaan",
+                      initialValue: controller.location.value,
                       onChanged: (v) => controller.location.value = v,
                     ),
 
                     _buildLabel("Alamat Kantor", isRequired: true),
                     _buildTextInput(
                       hint: "Alamat lengkap (gedung & lantai, jalan, kelurahan, dst.)",
+                      initialValue: controller.address.value,
                       onChanged: (v) => controller.address.value = v,
                     ),
 
+                    const SizedBox(height: 30),
+
+                    // BUTTON SIMPAN
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: controller.saveChanges,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFFA01355),
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: const Text(
+                          "Simpan Perubahan",
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+                        ),
+                      ),
+                    ),
                     const SizedBox(height: 40),
                   ],
                 ),
               ),
-            ),
-
-            // --- SUBMIT BUTTON ---
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, -4))],
-              ),
-              child: Obx(() => ElevatedButton(
-                onPressed: controller.canSubmit ? controller.onSubmit : null,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFA01355),
-                  disabledBackgroundColor: Colors.grey[300],
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                child: const Text(
-                  "Daftar",
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
-                ),
-              )),
             ),
           ],
         ),
@@ -276,7 +232,7 @@ class RecruiterNewProfilePage extends StatelessWidget {
     );
   }
 
-  // --- WIDGET HELPERS ---
+  // --- WIDGET HELPERS (Sama seperti di New Profile) ---
 
   Widget _buildSectionTitle(String title) {
     return Padding(
@@ -314,8 +270,14 @@ class RecruiterNewProfilePage extends StatelessWidget {
 
   Widget _buildTextInput({
     required String hint,
+    String? initialValue,
     required Function(String) onChanged,
   }) {
+    // Menggunakan controller text untuk initial value
+    final textController = TextEditingController(text: initialValue);
+    // Cursor ditaruh di akhir text jika ada initial value
+    textController.selection = TextSelection.fromPosition(TextPosition(offset: textController.text.length));
+
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
@@ -323,13 +285,14 @@ class RecruiterNewProfilePage extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
       ),
       child: TextField(
+        controller: textController,
         onChanged: onChanged,
         decoration: InputDecoration(
           hintText: hint,
           hintStyle: TextStyle(color: Colors.grey[600], fontSize: 14),
           border: InputBorder.none,
           contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-          suffixIcon: const Icon(Icons.chevron_right, color: Colors.grey), // Style panah seperti di gambar
+          suffixIcon: const Icon(Icons.chevron_right, color: Colors.grey),
         ),
       ),
     );

@@ -5,6 +5,8 @@ import 'package:wirwa/data/model.dart';
 import 'package:wirwa/data/repositories.dart';
 import 'package:wirwa/screen/job_seeker/main.dart';
 
+import '../recruiter/main.dart';
+
 class JobSeekerNewProfileController extends GetxController {
   final AuthRepository authRepository = Get.find();
   final UserRepository userRepository = Get.find();
@@ -69,7 +71,7 @@ class JobSeekerNewProfileController extends GetxController {
         pictureUrl: "",
       ),
     );
-    Get.off(JobSeekerPage());
+    Get.off(RecruiterPage());
   }
 }
 
