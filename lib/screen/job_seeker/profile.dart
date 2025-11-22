@@ -4,6 +4,7 @@ import 'package:wirwa/data/model.dart';
 import 'package:wirwa/data/repositories.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
+import "application_list.dart";
 
 class JobSeekerProfileController extends GetxController {
   final AuthRepository authRepository = Get.find();
@@ -297,13 +298,36 @@ class JobSeekerProfilePage extends StatelessWidget {
                   children: [
                     Padding(
                       padding: const EdgeInsets.all(16),
-                      child: Text(
-                        "Informasi Pribadi",
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black87,
-                        ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            "Informasi Pribadi",
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87,
+                            ),
+                          ),
+                          IconButton(
+                            onPressed: () {
+                              // TODO: Navigate to edit profile page
+                              Get.snackbar(
+                                "Info",
+                                "Halaman edit profile akan segera dibuat",
+                                backgroundColor: primaryColor,
+                                colorText: Colors.white,
+                                snackPosition: SnackPosition.BOTTOM,
+                              );
+                            },
+                            icon: Icon(
+                              Icons.edit,
+                              color: primaryColor,
+                              size: 20,
+                            ),
+                            tooltip: "Edit Profile",
+                          ),
+                        ],
                       ),
                     ),
                     Divider(height: 1),
@@ -319,6 +343,100 @@ class JobSeekerProfilePage extends StatelessWidget {
                       label: "Domisili",
                       value: profileData.domisili,
                       color: primaryColor,
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 16),
+
+              // Riwayat Section
+              Container(
+                margin: const EdgeInsets.symmetric(horizontal: 16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.1),
+                      spreadRadius: 1,
+                      blurRadius: 5,
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Text(
+                        "Riwayat",
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                        ),
+                      ),
+                    ),
+                    Divider(height: 1),
+                    ListTile(
+                      leading: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: primaryColor.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Icon(
+                          Icons.work_history,
+                          color: primaryColor,
+                          size: 20,
+                        ),
+                      ),
+                      title: Text(
+                        "Riwayat Lamaran",
+                        style: TextStyle(fontWeight: FontWeight.w500),
+                      ),
+                      trailing: Icon(
+                        Icons.arrow_forward_ios,
+                        size: 16,
+                        color: Colors.grey,
+                      ),
+                      onTap: () {
+                        Get.to(() => JobSeekerApplicationListPage());
+                      },
+                    ),
+                    Divider(height: 1, indent: 56),
+                    ListTile(
+                      leading: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: primaryColor.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Icon(
+                          Icons.school,
+                          color: primaryColor,
+                          size: 20,
+                        ),
+                      ),
+                      title: Text(
+                        "Riwayat Pelatihan",
+                        style: TextStyle(fontWeight: FontWeight.w500),
+                      ),
+                      trailing: Icon(
+                        Icons.arrow_forward_ios,
+                        size: 16,
+                        color: Colors.grey,
+                      ),
+                      onTap: () {
+                        Get.snackbar(
+                          "Info",
+                          "Fitur riwayat pelatihan akan segera tersedia",
+                          backgroundColor: primaryColor,
+                          colorText: Colors.white,
+                          snackPosition: SnackPosition.BOTTOM,
+                        );
+                      },
                     ),
                   ],
                 ),

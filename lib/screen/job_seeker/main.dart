@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:wirwa/screen/job_seeker/profile.dart';
+import 'package:wirwa/screen/job_seeker/job_list.dart';
+import 'package:wirwa/screen/job_seeker/workshop_list.dart';
 
 class JobSeekerController extends GetxController {
   final RxInt activePage = 0.obs;
@@ -11,8 +13,8 @@ class JobSeekerPage extends StatelessWidget {
   final JobSeekerController controller = Get.put(JobSeekerController());
 
   final List<Widget> pages = [
-    const Scaffold(body: Center(child: Text("Home Job Seeker"))),
-    const Scaffold(body: Center(child: Text("Lamaran Saya"))),
+    JobSeekerJobListPage(),
+    JobSeekerWorkshopListPage(),
     JobSeekerProfilePage(),
   ];
 
@@ -40,9 +42,9 @@ class JobSeekerPage extends StatelessWidget {
             destinations: [
               _buildNavItem(Icons.work, Icons.work_outline, 'Lowongan', 0),
               _buildNavItem(
-                Icons.description,
-                Icons.description_outlined,
-                'Lamaran',
+                Icons.library_books,
+                Icons.library_books_outlined,
+                'Workshop',
                 1,
               ),
               _buildNavItem(Icons.person, Icons.person_outline, 'Profil', 2),

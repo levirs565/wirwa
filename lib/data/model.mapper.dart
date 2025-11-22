@@ -184,6 +184,7 @@ class UserRecruiterMapper extends ClassMapperBase<UserRecruiter> {
   static UserRecruiter _instantiate(DecodingData data) {
     return UserRecruiter(
       id: data.dec(_f$id),
+      
       type: data.dec(_f$type),
       name: data.dec(_f$name),
     );

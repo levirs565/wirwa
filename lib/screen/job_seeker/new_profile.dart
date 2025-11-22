@@ -23,11 +23,14 @@ class JobSeekerNewProfileController extends GetxController {
   final ImagePicker _picker = ImagePicker();
 
   bool get canSubmit =>
+      name.value.trim().isNotEmpty &&
+      domisili.value.trim().isNotEmpty &&
+      phoneNumber.value.trim().isNotEmpty &&
+      birthDate.value != null &&
       nameError.value == null &&
       domisiliError.value == null &&
       phoneNumberError.value == null &&
-      birthDateError.value == null &&
-      birthDate.value != null;
+      birthDateError.value == null;
 
   @override
   void onReady() {
@@ -40,8 +43,8 @@ class JobSeekerNewProfileController extends GetxController {
   void setName(String value) {
     name.value = value;
 
-    if (name.trim().length < 5) {
-      nameError.value = "Name must be at least 5 characters";
+    if (name.trim().length < 3) {
+      nameError.value = "Name must be at least 3 characters";
     } else {
       nameError.value = null;
     }
@@ -50,8 +53,8 @@ class JobSeekerNewProfileController extends GetxController {
   void setDomisili(String value) {
     domisili.value = value;
 
-    if (domisili.trim().length < 5) {
-      domisiliError.value = "Domisili must be at least 5 characters";
+    if (domisili.trim().length < 3) {
+      domisiliError.value = "Domisili must be at least 3 characters";
     } else {
       domisiliError.value = null;
     }
@@ -150,216 +153,371 @@ class JobSeekerNewProfilePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          "Daftar Akun",
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.w600,
-            color: Color(0xFFE91E63),
-          ),
-        ),
-      ),
-      body: Column(
-        children: [
-          Expanded(
-            child: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SizedBox(height: 20),
-                    Text(
-                      "Masuk Sebagai Pelamar",
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w600,
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        child: Column(
+          children: [
+            // --- HEADER (Title & Back Button) ---
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+              child: Row(
+                children: [
+                  InkWell(
+                    onTap: () {
+                      // Logout atau Back ke login jika user membatalkan pembuatan profil
+                      controller.authRepository.signOut();
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: const BoxDecoration(
                         color: Color(0xFFE91E63),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.arrow_back,
+                        color: Colors.white,
+                        size: 20,
                       ),
                     ),
-                    const SizedBox(height: 30),
+                  ),
+                  const Expanded(
+                    child: Center(
+                      child: Text(
+                        "Daftar Akun",
+                        style: TextStyle(
+                          color: Color(0xFFE91E63),
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 36), // Balance untuk back button
+                ],
+              ),
+            ),
 
-                    // Profile Picture Upload
-                    Center(
-                      child: Obx(
-                        () => Column(
-                          children: [
-                            CircleAvatar(
-                              radius: 50,
-                              backgroundColor: Colors.grey[300],
-                              backgroundImage:
-                                  controller.selectedImage.value != null
-                                  ? FileImage(controller.selectedImage.value!)
-                                  : null,
-                              child: controller.selectedImage.value == null
-                                  ? Icon(
-                                      Icons.person,
-                                      size: 50,
-                                      color: Colors.grey[600],
-                                    )
-                                  : null,
-                            ),
-                            const SizedBox(height: 10),
-                            TextButton.icon(
-                              onPressed: controller.pickImage,
-                              icon: Icon(
-                                Icons.upload,
-                                color: Color(0xFFE91E63),
+            Expanded(
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Subtitle
+                      Center(
+                        child: Text(
+                          "Masuk Sebagai Pelamar",
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.grey[700],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 30),
+
+                      // Profile Picture Upload
+                      Center(
+                        child: Obx(
+                          () => Column(
+                            children: [
+                              CircleAvatar(
+                                radius: 50,
+                                backgroundColor: Colors.grey[300],
+                                backgroundImage:
+                                    controller.selectedImage.value != null
+                                    ? FileImage(controller.selectedImage.value!)
+                                    : null,
+                                child: controller.selectedImage.value == null
+                                    ? Icon(
+                                        Icons.person,
+                                        size: 50,
+                                        color: Colors.grey[600],
+                                      )
+                                    : null,
                               ),
-                              label: Text(
-                                controller.selectedImage.value == null
-                                    ? "Upload Foto Profil"
-                                    : "Ganti Foto",
-                                style: TextStyle(color: Color(0xFFE91E63)),
+                              const SizedBox(height: 10),
+                              TextButton.icon(
+                                onPressed: controller.pickImage,
+                                icon: Icon(
+                                  Icons.upload,
+                                  color: Color(0xFFE91E63),
+                                ),
+                                label: Text(
+                                  controller.selectedImage.value == null
+                                      ? "Upload Foto Profil"
+                                      : "Ganti Foto",
+                                  style: TextStyle(color: Color(0xFFE91E63)),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(height: 20),
+
+                      // Nama Lengkap
+                      Obx(
+                        () => Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "Nama Lengkap",
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.black87,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            TextField(
+                              onChanged: controller.setName,
+                              decoration: InputDecoration(
+                                hintText: "Masukkan nama lengkap",
+                                filled: true,
+                                fillColor: Color(0xFFFDC5DF),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  borderSide: BorderSide.none,
+                                ),
+                                errorText: controller.nameError.value,
+                                contentPadding: EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 14,
+                                ),
                               ),
                             ),
                           ],
                         ),
                       ),
-                    ),
+                      const SizedBox(height: 16),
 
-                    const SizedBox(height: 20),
-
-                    Obx(
-                      () => TextField(
-                        onChanged: controller.setName,
-                        decoration: InputDecoration(
-                          labelText: "Nama Lengkap",
-                          border: OutlineInputBorder(),
-                          errorText: controller.nameError.value,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-
-                    // Birth Date Picker
-                    Obx(
-                      () => InkWell(
-                        onTap: () async {
-                          final date = await showDatePicker(
-                            context: context,
-                            initialDate: DateTime(2000),
-                            firstDate: DateTime(1950),
-                            lastDate: DateTime.now(),
-                            builder: (context, child) {
-                              return Theme(
-                                data: Theme.of(context).copyWith(
-                                  colorScheme: ColorScheme.light(
-                                    primary: Color(0xFFE91E63),
+                      // Birth Date Picker
+                      Obx(
+                        () => Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "Tanggal Lahir",
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.black87,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            InkWell(
+                              onTap: () async {
+                                final date = await showDatePicker(
+                                  context: context,
+                                  initialDate: DateTime(2000),
+                                  firstDate: DateTime(1950),
+                                  lastDate: DateTime.now(),
+                                  builder: (context, child) {
+                                    return Theme(
+                                      data: Theme.of(context).copyWith(
+                                        colorScheme: ColorScheme.light(
+                                          primary: Color(0xFFE91E63),
+                                        ),
+                                      ),
+                                      child: child!,
+                                    );
+                                  },
+                                );
+                                if (date != null) {
+                                  controller.setBirthDate(date);
+                                }
+                              },
+                              child: Container(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 14,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Color(0xFFFDC5DF),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      controller.birthDate.value != null
+                                          ? "${controller.birthDate.value!.day}/${controller.birthDate.value!.month}/${controller.birthDate.value!.year}"
+                                          : "Pilih tanggal lahir",
+                                      style: TextStyle(
+                                        color:
+                                            controller.birthDate.value != null
+                                            ? Colors.black87
+                                            : Colors.grey[600],
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                    Icon(
+                                      Icons.calendar_today,
+                                      color: Colors.grey[600],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            if (controller.birthDateError.value != null)
+                              Padding(
+                                padding: const EdgeInsets.only(
+                                  top: 8,
+                                  left: 12,
+                                ),
+                                child: Text(
+                                  controller.birthDateError.value!,
+                                  style: TextStyle(
+                                    color: Colors.red[700],
+                                    fontSize: 12,
                                   ),
                                 ),
-                                child: child!,
-                              );
-                            },
-                          );
-                          if (date != null) {
-                            controller.setBirthDate(date);
-                          }
-                        },
-                        child: InputDecorator(
-                          decoration: InputDecoration(
-                            labelText: "Tanggal Lahir",
-                            border: OutlineInputBorder(),
-                            errorText: controller.birthDateError.value,
-                            suffixIcon: Icon(Icons.calendar_today),
-                          ),
-                          child: Text(
-                            controller.birthDate.value != null
-                                ? "${controller.birthDate.value!.day}/${controller.birthDate.value!.month}/${controller.birthDate.value!.year}"
-                                : "Pilih tanggal lahir",
-                            style: TextStyle(
-                              color: controller.birthDate.value != null
-                                  ? Colors.black
-                                  : Colors.grey[600],
-                            ),
-                          ),
+                              ),
+                          ],
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 16),
+                      const SizedBox(height: 16),
 
-                    Obx(
-                      () => TextField(
-                        onChanged: controller.setDomisili,
-                        decoration: InputDecoration(
-                          labelText: "Domisili",
-                          border: OutlineInputBorder(),
-                          errorText: controller.domisiliError.value,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-
-                    Obx(
-                      () => Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          TextField(
-                            onChanged: controller.setPhoneNumber,
-                            keyboardType: TextInputType.phone,
-                            decoration: InputDecoration(
-                              labelText: "Nomor WhatsApp",
-                              border: OutlineInputBorder(),
-                              errorText: controller.phoneNumberError.value,
-                              prefixIcon: Icon(
-                                Icons.phone_android,
-                                color: Color(0xFF25D366), // WhatsApp green
+                      // Domisili
+                      Obx(
+                        () => Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "Domisili",
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.black87,
                               ),
                             ),
-                          ),
-                          const SizedBox(height: 6),
-                          Row(
-                            children: [
-                              Icon(
-                                Icons.check_circle,
-                                size: 14,
-                                color: Color(0xFF25D366),
-                              ),
-                              const SizedBox(width: 4),
-                              Text(
-                                "Pastikan WhatsApp aktif",
-                                style: TextStyle(
-                                  fontSize: 11,
-                                  color: Colors.grey[600],
-                                  fontStyle: FontStyle.italic,
+                            const SizedBox(height: 8),
+                            TextField(
+                              onChanged: controller.setDomisili,
+                              decoration: InputDecoration(
+                                hintText: "Masukkan domisili",
+                                filled: true,
+                                fillColor: Color(0xFFFDC5DF),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  borderSide: BorderSide.none,
+                                ),
+                                errorText: controller.domisiliError.value,
+                                contentPadding: EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 14,
                                 ),
                               ),
-                            ],
-                          ),
-                        ],
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+
+                      // Nomor WhatsApp
+                      Obx(
+                        () => Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "Nomor WhatsApp",
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.black87,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            TextField(
+                              onChanged: controller.setPhoneNumber,
+                              keyboardType: TextInputType.phone,
+                              decoration: InputDecoration(
+                                hintText: "Masukkan nomor WhatsApp",
+                                filled: true,
+                                fillColor: Color(0xFFFDC5DF),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  borderSide: BorderSide.none,
+                                ),
+                                errorText: controller.phoneNumberError.value,
+                                prefixIcon: Icon(
+                                  Icons.phone_android,
+                                  color: Color(0xFF25D366), // WhatsApp green
+                                ),
+                                contentPadding: EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 14,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 6),
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.check_circle,
+                                  size: 14,
+                                  color: Color(0xFF25D366),
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  "Pastikan WhatsApp aktif",
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    color: Colors.grey[600],
+                                    fontStyle: FontStyle.italic,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            // Tombol fixed di bawah
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Obx(
+                () => SizedBox(
+                  width: double.infinity,
+                  height: 50,
+                  child: ElevatedButton(
+                    onPressed: controller.canSubmit
+                        ? controller.onSubmit
+                        : null,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: controller.canSubmit
+                          ? Color(0xFFE91E63)
+                          : Colors.grey[400],
+                      foregroundColor: Colors.white,
+                      disabledBackgroundColor: Colors.grey[400],
+                      disabledForegroundColor: Colors.grey[600],
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
                       ),
                     ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          // Tombol fixed di bawah
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Obx(
-              () => SizedBox(
-                width: double.infinity,
-                height: 50,
-                child: ElevatedButton(
-                  onPressed: controller.canSubmit ? controller.onSubmit : null,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFFE91E63),
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+                    child: Text(
+                      controller.canSubmit
+                          ? "Daftar"
+                          : "Lengkapi Data Terlebih Dahulu",
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
-                  child: const Text(
-                    "Daftar",
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-                  ),
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
