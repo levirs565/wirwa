@@ -11,10 +11,10 @@ class JobSeekerProfileController extends GetxController {
   @override
   void onReady() {
     super.onReady();
-    userRepository
-        .getJobSeekerProfile(authRepository.getUserId()!)
-        .then((value) {
-          profile.value = value;
+    userRepository.getJobSeekerProfile(authRepository.getUserId()!).then((
+      value,
+    ) {
+      profile.value = value;
     });
   }
 
@@ -24,7 +24,9 @@ class JobSeekerProfileController extends GetxController {
 }
 
 class JobSeekerProfilePage extends StatelessWidget {
-  final JobSeekerProfileController controller = Get.put(JobSeekerProfileController());
+  final JobSeekerProfileController controller = Get.put(
+    JobSeekerProfileController(),
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +37,17 @@ class JobSeekerProfilePage extends StatelessWidget {
         child: Column(
           children: [
             Obx(() => Text(controller.profile.value?.name ?? "")),
-            OutlinedButton(onPressed: controller.logout, child: Text("Logout"))
+            SizedBox(height: 8),
+            SizedBox(
+              height: 28,
+              child: OutlinedButton(
+                onPressed: controller.logout,
+                style: OutlinedButton.styleFrom(
+                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                ),
+                child: Text("Keluar", style: TextStyle(fontSize: 11)),
+              ),
+            ),
           ],
         ),
       ),

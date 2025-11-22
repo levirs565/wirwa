@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:wirwa/screen/job_seeker/profile.dart';
 
 class JobSeekerController extends GetxController {
   final RxInt activePage = 0.obs;
@@ -12,7 +13,7 @@ class JobSeekerPage extends StatelessWidget {
   final List<Widget> pages = [
     const Scaffold(body: Center(child: Text("Home Job Seeker"))),
     const Scaffold(body: Center(child: Text("Lamaran Saya"))),
-    const Scaffold(body: Center(child: Text("Profil Job Seeker"))),
+    JobSeekerProfilePage(),
   ];
 
   JobSeekerPage({super.key});
@@ -22,7 +23,7 @@ class JobSeekerPage extends StatelessWidget {
     return Scaffold(
       body: Obx(() => pages[controller.activePage.value]),
       bottomNavigationBar: Obx(
-            () => NavigationBarTheme(
+        () => NavigationBarTheme(
           data: NavigationBarThemeData(
             labelTextStyle: MaterialStateProperty.all(
               const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
@@ -34,10 +35,16 @@ class JobSeekerPage extends StatelessWidget {
             backgroundColor: Colors.white,
             indicatorColor: Colors.transparent,
             selectedIndex: controller.activePage.value,
-            onDestinationSelected: (index) => controller.activePage.value = index,
+            onDestinationSelected: (index) =>
+                controller.activePage.value = index,
             destinations: [
               _buildNavItem(Icons.work, Icons.work_outline, 'Lowongan', 0),
-              _buildNavItem(Icons.description, Icons.description_outlined, 'Lamaran', 1),
+              _buildNavItem(
+                Icons.description,
+                Icons.description_outlined,
+                'Lamaran',
+                1,
+              ),
               _buildNavItem(Icons.person, Icons.person_outline, 'Profil', 2),
             ],
           ),
@@ -46,7 +53,12 @@ class JobSeekerPage extends StatelessWidget {
     );
   }
 
-  NavigationDestination _buildNavItem(IconData activeIcon, IconData icon, String label, int index) {
+  NavigationDestination _buildNavItem(
+    IconData activeIcon,
+    IconData icon,
+    String label,
+    int index,
+  ) {
     final isSelected = controller.activePage.value == index;
     return NavigationDestination(
       icon: Icon(
