@@ -18,6 +18,11 @@ class AuthDataSource implements AuthRepository {
   }
 
   @override
+  String? getUserEmail() {
+    return client.auth.currentUser?.email;
+  }
+
+  @override
   Future<void> login() async {
     const webClientId = GOOGLE_OAUTH_CLIENT_ID;
     final scopes = ["email", "profile"];
@@ -54,5 +59,4 @@ class AuthDataSource implements AuthRepository {
     await GoogleSignIn.instance.disconnect();
     await Supabase.instance.client.auth.signOut();
   }
-
 }

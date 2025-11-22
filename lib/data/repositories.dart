@@ -5,6 +5,8 @@ abstract interface class AuthRepository {
 
   String? getUserId();
 
+  String? getUserEmail();
+
   Future<void> login();
 
   Future<void> signOut();
