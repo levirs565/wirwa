@@ -42,32 +42,17 @@ class JobSeekerNewProfileController extends GetxController {
 
   void setName(String value) {
     name.value = value;
-
-    if (name.trim().length < 3) {
-      nameError.value = "Name must be at least 3 characters";
-    } else {
-      nameError.value = null;
-    }
+    nameError.value = null;
   }
 
   void setDomisili(String value) {
     domisili.value = value;
-
-    if (domisili.trim().length < 3) {
-      domisiliError.value = "Domisili must be at least 3 characters";
-    } else {
-      domisiliError.value = null;
-    }
+    domisiliError.value = null;
   }
 
   void setPhoneNumber(String value) {
     phoneNumber.value = value;
-
-    if (phoneNumber.trim().length < 5) {
-      phoneNumberError.value = "Phone number must be at least 5 characters";
-    } else {
-      phoneNumberError.value = null;
-    }
+    phoneNumberError.value = null;
   }
 
   void setBirthDate(DateTime? date) {
@@ -81,7 +66,6 @@ class JobSeekerNewProfileController extends GetxController {
 
   Future<void> pickImage() async {
     try {
-      // Show dialog to choose camera or gallery
       final source = await Get.bottomSheet<ImageSource>(
         Container(
           padding: const EdgeInsets.all(16),
@@ -157,14 +141,12 @@ class JobSeekerNewProfilePage extends StatelessWidget {
       body: SafeArea(
         child: Column(
           children: [
-            // --- HEADER (Title & Back Button) ---
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
               child: Row(
                 children: [
                   InkWell(
                     onTap: () {
-                      // Logout atau Back ke login jika user membatalkan pembuatan profil
                       controller.authRepository.signOut();
                     },
                     child: Container(

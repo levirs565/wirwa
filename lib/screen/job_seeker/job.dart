@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import 'package:wirwa/data/model.dart';
 import 'package:wirwa/data/repositories.dart';
 
-// --- Controller Tetap Sama ---
 class JobSeekerJobController extends GetxController {
   static const String ARGUMENT_ID = "id";
 

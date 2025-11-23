@@ -4,7 +4,6 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:wirwa/data/model.dart';
 import 'package:wirwa/data/repositories.dart';
 
-// --- Controller ---
 class JobSeekerWorkshopController extends GetxController {
   static const String ARGUMENT_ID = "id";
 
@@ -31,13 +30,10 @@ class JobSeekerWorkshopController extends GetxController {
   Future<void> refresh() async {
     isLoading.value = true;
     try {
-      // A. Ambil data Workshop dulu
       final workshopData = await workshopRepository.getById(id);
       workshop.value = workshopData;
 
-      // B. Jika workshop ada, ambil data Recruiter berdasarkan recruiterId
       if (workshopData != null) {
-        // Asumsi: di model Workshop ada field 'recruiterId'
         final recruiterData = await userRepository.getRecruiterProfile(
           workshopData.recruiterId,
         );
@@ -128,8 +124,6 @@ class JobSeekerWorkshopPage extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: Colors.grey.shade300,
                   image: const DecorationImage(
-                    // Ganti data.imageUrl dengan field gambar dari database kamu
-                    // image: NetworkImage(data.imageUrl),
                     image: AssetImage(
                       'assets/placeholder_study.png',
                     ), // Placeholder sementara

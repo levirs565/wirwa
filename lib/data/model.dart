@@ -18,13 +18,21 @@ enum UserRecruiterType {
   INDIVIDUAL,
 }
 
-@MappableClass()
+@MappableClass(caseStyle: CaseStyle.snakeCase)
 class UserRecruiter with UserRecruiterMappable {
   final String id;
   final UserRecruiterType type;
   final String name;
+  final String? pictureUrl;
+  final String phoneNumber;
 
-  UserRecruiter({required this.id, required this.type, required this.name});
+  UserRecruiter({
+    required this.id,
+    required this.type,
+    required this.name,
+    this.pictureUrl,
+    required this.phoneNumber,
+  });
 }
 
 @MappableClass(caseStyle: CaseStyle.snakeCase)
@@ -152,5 +160,3 @@ class WorkshopWithRecruiter {
 
   WorkshopWithRecruiter({required this.workshop, required this.recruiter});
 }
-
-

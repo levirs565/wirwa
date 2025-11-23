@@ -3,13 +3,19 @@ import 'package:get/get.dart';
 import 'package:wirwa/data/model.dart';
 import 'package:wirwa/data/repositories.dart';
 import 'package:wirwa/screen/landing_screen.dart';
-import 'package:wirwa/screen/recruiter/edit_company.dart'; // Import file baru
+import 'package:wirwa/screen/recruiter/edit_company.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
 
 class RecruiterProfileController extends GetxController {
   final AuthRepository authRepository = Get.find();
   final UserRepository userRepository = Get.find();
 
   final Rxn<UserRecruiter> profile = Rxn<UserRecruiter>();
+
+  final Rx<String?> userEmail = Rxn();
+  final Rx<File?> selectedImage = Rxn(null);
+  final ImagePicker _picker = ImagePicker();
 
   @override
   void onReady() {
@@ -23,6 +29,7 @@ class RecruiterProfileController extends GetxController {
       userRepository.getRecruiterProfile(userId).then((value) {
         profile.value = value;
       });
+      userEmail.value = authRepository.getUserEmail();
     }
   }
 
@@ -30,10 +37,87 @@ class RecruiterProfileController extends GetxController {
     await authRepository.signOut();
     Get.offAll(() => const LandingScreen());
   }
+
+  Future<void> pickImage() async {
+    try {
+      // Show dialog to choose camera or gallery
+      final source = await Get.bottomSheet<ImageSource>(
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          ),
+          child: Wrap(
+            children: [
+              ListTile(
+                leading: Icon(Icons.camera_alt, color: Color(0xFFA01355)),
+                title: Text("Kamera"),
+                onTap: () => Get.back(result: ImageSource.camera),
+              ),
+              ListTile(
+                leading: Icon(Icons.photo_library, color: Color(0xFFA01355)),
+                title: Text("Galeri"),
+                onTap: () => Get.back(result: ImageSource.gallery),
+              ),
+            ],
+          ),
+        ),
+        backgroundColor: Colors.transparent,
+      );
+
+      if (source != null) {
+        final XFile? image = await _picker.pickImage(
+          source: source,
+          maxWidth: 1024,
+          maxHeight: 1024,
+          imageQuality: 85,
+        );
+
+        if (image != null) {
+          selectedImage.value = File(image.path);
+
+          // Update profile with new image path
+          if (profile.value != null) {
+            final updatedProfile = UserRecruiter(
+              id: profile.value!.id,
+              pictureUrl: image.path,
+              type: profile.value!.type,
+              phoneNumber: profile.value!.phoneNumber,
+              // domisili: profile.value!.domisili,
+              name: profile.value!.name,
+              // phoneNumber: profile.value!.phoneNumber,
+            );
+
+            await userRepository.setRecruiterProfile(updatedProfile);
+            profile.value = updatedProfile;
+
+            Get.snackbar(
+              "Berhasil",
+              "Foto profil berhasil diperbarui",
+              backgroundColor: Color(0xFFA01355),
+              colorText: Colors.white,
+              snackPosition: SnackPosition.BOTTOM,
+            );
+          }
+        }
+      }
+    } catch (e) {
+      Get.snackbar(
+        "Error",
+        "Gagal mengambil gambar: $e",
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    }
+  }
 }
 
 class RecruiterProfilePage extends StatelessWidget {
-  final RecruiterProfileController controller = Get.put(RecruiterProfileController());
+  final RecruiterProfileController controller = Get.put(
+    RecruiterProfileController(),
+  );
 
   RecruiterProfilePage({super.key});
 
@@ -119,49 +203,67 @@ class RecruiterProfilePage extends StatelessWidget {
       child: Obx(() {
         final user = controller.profile.value;
         final String displayName = user?.name ?? "Memuat...";
-        final String initials = displayName.isNotEmpty
-            ? displayName[0].toUpperCase()
-            : "?";
+        // initials intentionally unused for now; can be used for fallback avatar
+
+        // Determine image provider safely (local selected, then user pictureUrl)
+        ImageProvider? avatarImage;
+        try {
+          if (controller.selectedImage.value != null) {
+            avatarImage = FileImage(controller.selectedImage.value!);
+          } else {
+            final pic = user?.pictureUrl;
+            if (pic != null && pic.isNotEmpty) {
+              if (pic.startsWith('http')) {
+                avatarImage = NetworkImage(pic);
+              } else if (File(pic).existsSync()) {
+                avatarImage = FileImage(File(pic));
+              }
+            }
+          }
+        } catch (e) {
+          avatarImage = null;
+        }
 
         return Column(
           children: [
             Stack(
               children: [
-                Container(
-                  padding: const EdgeInsets.all(4),
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
-                    shape: BoxShape.circle,
-                  ),
-                  child: CircleAvatar(
-                    radius: 50,
-                    backgroundColor: Colors.grey[300],
-                    child: Text(
-                      initials,
-                      style: const TextStyle(
-                          fontSize: 40,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFFA01355)
-                      ),
-                    ),
-                  ),
+                CircleAvatar(
+                  radius: 50,
+                  backgroundColor: Colors.white,
+                  backgroundImage: avatarImage,
+                  child: avatarImage == null
+                      ? Icon(Icons.person, size: 50, color: Color(0xFFA01355))
+                      : null,
                 ),
                 Positioned(
                   bottom: 0,
                   right: 0,
-                  child: Container(
-                    padding: const EdgeInsets.all(6),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFE91E63),
-                      shape: BoxShape.circle,
-                      border: Border.all(color: Colors.white, width: 2),
+                  child: GestureDetector(
+                    onTap: controller.pickImage,
+                    child: Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.2),
+                            spreadRadius: 1,
+                            blurRadius: 3,
+                          ),
+                        ],
+                      ),
+                      child: Icon(
+                        Icons.camera_alt,
+                        color: Color(0xFFA01355),
+                        size: 18,
+                      ),
                     ),
-                    child: const Icon(Icons.edit, size: 14, color: Colors.white),
                   ),
                 ),
               ],
             ),
-
             const SizedBox(height: 16),
 
             Text(
@@ -180,8 +282,8 @@ class RecruiterProfilePage extends StatelessWidget {
               children: [
                 const Icon(Icons.call, color: Colors.greenAccent, size: 16),
                 const SizedBox(width: 4),
-                const Text(
-                  "+62 812345678910",
+                 Text(
+                  user?.phoneNumber ?? '-',
                   style: TextStyle(color: Colors.white, fontSize: 12),
                 ),
                 const SizedBox(width: 12),
@@ -189,9 +291,9 @@ class RecruiterProfilePage extends StatelessWidget {
                 const SizedBox(width: 12),
                 const Icon(Icons.email, color: Colors.orangeAccent, size: 16),
                 const SizedBox(width: 4),
-                const Text(
-                  "rahma@gmail.com",
-                  style: TextStyle(color: Colors.white, fontSize: 12),
+                Text(
+                  controller.userEmail.value ?? '-',
+                  style: const TextStyle(color: Colors.white, fontSize: 12),
                 ),
               ],
             ),

@@ -133,7 +133,7 @@ class LoginPage extends StatelessWidget {
                                 Text(
                                   "Masuk & Daftar dengan Google",
                                   style: GoogleFonts.poppins(
-                                    fontSize: 16,
+                                    fontSize: 13,
                                     fontWeight: FontWeight.w600,
                                   ),
                                 ),

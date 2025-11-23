@@ -1,24 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-// Pastikan import model dan repo kamu tetap ada
 import 'package:wirwa/data/model.dart';
 import 'package:wirwa/data/repositories.dart';
 import 'package:wirwa/screen/job_seeker/job.dart';
 
-// --- Controller Tetap Sama (Sedikit penyesuaian jika perlu filter) ---
 class JobSeekerJobListController extends GetxController {
   final JobVacancyRepository jobVacancyRepository = Get.find();
   final UserRepository userRepository = Get.find();
   final AuthRepository authRepository = Get.find();
   final RxList<JobVacancy> jobs = <JobVacancy>[].obs;
 
-  // Data user yang sedang login
   final Rxn<UserJobSeeker> currentUser = Rxn<UserJobSeeker>();
 
-  // Map untuk menyimpan data recruiter berdasarkan ID
   final RxMap<String, UserRecruiter> recruiters = <String, UserRecruiter>{}.obs;
 
-  // Tambahan untuk handle filter kategori (Contoh UI saja)
   final List<String> categories = [
     "Semua",
     "Penuh Waktu",

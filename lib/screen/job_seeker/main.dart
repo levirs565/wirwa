@@ -8,7 +8,6 @@ class JobSeekerController extends GetxController {
   final RxInt activePage = 0.obs;
 }
 
-// NAMA CLASS DIBETULKAN: JobSeekerPage
 class JobSeekerPage extends StatelessWidget {
   final JobSeekerController controller = Get.put(JobSeekerController());
 

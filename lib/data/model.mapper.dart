@@ -173,20 +173,36 @@ class UserRecruiterMapper extends ClassMapperBase<UserRecruiter> {
   );
   static String _$name(UserRecruiter v) => v.name;
   static const Field<UserRecruiter, String> _f$name = Field('name', _$name);
+  static String? _$pictureUrl(UserRecruiter v) => v.pictureUrl;
+  static const Field<UserRecruiter, String> _f$pictureUrl = Field(
+    'pictureUrl',
+    _$pictureUrl,
+    key: r'picture_url',
+    opt: true,
+  );
+  static String _$phoneNumber(UserRecruiter v) => v.phoneNumber;
+  static const Field<UserRecruiter, String> _f$phoneNumber = Field(
+    'phoneNumber',
+    _$phoneNumber,
+    key: r'phone_number',
+  );
 
   @override
   final MappableFields<UserRecruiter> fields = const {
     #id: _f$id,
     #type: _f$type,
     #name: _f$name,
+    #pictureUrl: _f$pictureUrl,
+    #phoneNumber: _f$phoneNumber,
   };
 
   static UserRecruiter _instantiate(DecodingData data) {
     return UserRecruiter(
       id: data.dec(_f$id),
-      
       type: data.dec(_f$type),
       name: data.dec(_f$name),
+      pictureUrl: data.dec(_f$pictureUrl),
+      phoneNumber: data.dec(_f$phoneNumber),
     );
   }
 
@@ -252,7 +268,13 @@ extension UserRecruiterValueCopy<$R, $Out>
 
 abstract class UserRecruiterCopyWith<$R, $In extends UserRecruiter, $Out>
     implements ClassCopyWith<$R, $In, $Out> {
-  $R call({String? id, UserRecruiterType? type, String? name});
+  $R call({
+    String? id,
+    UserRecruiterType? type,
+    String? name,
+    String? pictureUrl,
+    String? phoneNumber,
+  });
   UserRecruiterCopyWith<$R2, $In, $Out2> $chain<$R2, $Out2>(Then<$Out2, $R2> t);
 }
 
@@ -265,11 +287,19 @@ class _UserRecruiterCopyWithImpl<$R, $Out>
   late final ClassMapperBase<UserRecruiter> $mapper =
       UserRecruiterMapper.ensureInitialized();
   @override
-  $R call({String? id, UserRecruiterType? type, String? name}) => $apply(
+  $R call({
+    String? id,
+    UserRecruiterType? type,
+    String? name,
+    Object? pictureUrl = $none,
+    String? phoneNumber,
+  }) => $apply(
     FieldCopyWithData({
       if (id != null) #id: id,
       if (type != null) #type: type,
       if (name != null) #name: name,
+      if (pictureUrl != $none) #pictureUrl: pictureUrl,
+      if (phoneNumber != null) #phoneNumber: phoneNumber,
     }),
   );
   @override
@@ -277,6 +307,8 @@ class _UserRecruiterCopyWithImpl<$R, $Out>
     id: data.get(#id, or: $value.id),
     type: data.get(#type, or: $value.type),
     name: data.get(#name, or: $value.name),
+    pictureUrl: data.get(#pictureUrl, or: $value.pictureUrl),
+    phoneNumber: data.get(#phoneNumber, or: $value.phoneNumber),
   );
 
   @override

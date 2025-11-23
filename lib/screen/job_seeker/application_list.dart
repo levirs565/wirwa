@@ -13,7 +13,6 @@ class JobSeekerApplicationListController extends GetxController {
   final RxInt selectedFilterIndex = 0.obs;
 
   final List<String> filters = ["Dilamar", "Seleksi", "Direkrut", "Belum Siap"];
-  // Dummy counts untuk badge (nanti bisa diambil dari data real)
   final List<int> filterCounts = [1, 0, 0, 2];
 
   @override
@@ -23,7 +22,6 @@ class JobSeekerApplicationListController extends GetxController {
   }
 
   void refreshData() {
-    // Simulasi loading atau fetch data
     jobApplicationRepository
         .getAllWithVacancy(authRepository.getUserId()!)
         .then((value) {
@@ -34,7 +32,6 @@ class JobSeekerApplicationListController extends GetxController {
 
   void changeFilter(int index) {
     selectedFilterIndex.value = index;
-    // Di sini nanti bisa tambahkan logika filtering list 'jobs' berdasarkan status
     refreshData(); 
   }
 
@@ -46,13 +43,11 @@ class JobSeekerApplicationListController extends GetxController {
   }
 }
 
-// --- 2. Update Page UI ---
 class JobSeekerApplicationListPage extends StatelessWidget {
   final JobSeekerApplicationListController controller = Get.put(
     JobSeekerApplicationListController(),
   );
 
-  // Warna sesuai desain (Salmon/Pinkish)
   final Color primaryColor = const Color(0xFFFF8B7E);
   final Color backgroundColor = const Color(0xFFFFF8F8);
   final Color textGrey = const Color(0xFF888888);
