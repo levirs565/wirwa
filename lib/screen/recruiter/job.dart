@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:intl/intl.dart';
 import 'package:wirwa/data/model.dart';
 import 'package:wirwa/data/repositories.dart';
 import 'package:wirwa/screen/recruiter/applicant.dart';
@@ -14,7 +13,8 @@ class RecruiterJobController extends GetxController {
 
   String id = "";
   Rx<JobVacancy?> job = Rxn();
-  RxList<JobApplicationWithSeeker> applications = <JobApplicationWithSeeker>[].obs;
+  RxList<JobApplicationWithSeeker> applications =
+      <JobApplicationWithSeeker>[].obs;
 
   @override
   void onInit() {
@@ -37,19 +37,11 @@ class RecruiterJobController extends GetxController {
   }
 
   Future<void> toDetail(String id) async {
-    await Get.to(() => RecruiterApplicantPage(), arguments: RecruiterApplicantPage.createArguments(id));
+    await Get.to(
+      () => RecruiterApplicantPage(),
+      arguments: RecruiterApplicantPage.createArguments(id),
+    );
     await refresh();
-  }
-
-  // Helper untuk parsing metadata dari deskripsi (Sama seperti di Job List)
-  String extractMetadata(String description, String key) {
-    try {
-      final line = description.split('\n').firstWhere((l) => l.contains(key), orElse: () => "");
-      if (line.isNotEmpty) {
-        return line.split(": ")[1].trim();
-      }
-    } catch (_) {}
-    return "-";
   }
 }
 
@@ -70,10 +62,10 @@ class RecruiterJobPage extends StatelessWidget {
         }
 
         final job = controller.job.value!;
-        // Parsing Data untuk Tampilan UI agar dinamis
-        final salary = controller.extractMetadata(job.description, "- Gaji:");
-        final type = controller.extractMetadata(job.description, "- Tipe:");
-        final location = job.location.isNotEmpty ? job.location : controller.extractMetadata(job.description, "- Kebijakan:");
+        // Use fields directly from model
+        final salary = job.salary ?? "-";
+        final type = job.jobType ?? "-";
+        final location = job.workPolicy ?? job.location;
 
         return Stack(
           children: [
@@ -94,7 +86,6 @@ class RecruiterJobPage extends StatelessWidget {
               child: Column(
                 children: [
                   const SizedBox(height: 60), // Space untuk App Bar
-
                   // --- HEADER INFO ---
                   Center(
                     child: Column(
@@ -109,7 +100,9 @@ class RecruiterJobPage extends StatelessWidget {
                           child: const CircleAvatar(
                             radius: 40,
                             backgroundColor: Colors.white,
-                            backgroundImage: AssetImage('assets/images/gambar1.png'), // Placeholder Logo
+                            backgroundImage: AssetImage(
+                              'assets/images/gambar1.png',
+                            ), // Placeholder Logo
                           ),
                         ),
                         const SizedBox(height: 16),
@@ -127,15 +120,15 @@ class RecruiterJobPage extends StatelessWidget {
                         // Company Name
                         const Text(
                           "Perusahaan Recruiter", // Placeholder (karena model blm ada field nama PT)
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.white70,
-                          ),
+                          style: TextStyle(fontSize: 16, color: Colors.white70),
                         ),
                         const SizedBox(height: 16),
                         // Status Chip
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 6,
+                          ),
                           decoration: BoxDecoration(
                             color: const Color(0xFFFFCDD2), // Pink muda
                             borderRadius: BorderRadius.circular(20),
@@ -159,7 +152,10 @@ class RecruiterJobPage extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 24),
                     child: Container(
-                      padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 20,
+                        horizontal: 16,
+                      ),
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(20),
@@ -174,9 +170,21 @@ class RecruiterJobPage extends StatelessWidget {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
-                          _buildInfoItem(Icons.monetization_on_outlined, salary != "-" ? salary : "Negosiasi", "Gaji"),
-                          _buildInfoItem(Icons.access_time, type != "-" ? type : "Full Time", "Tipe"),
-                          _buildInfoItem(Icons.location_on_outlined, location != "-" ? location : "Remote", "Lokasi"),
+                          _buildInfoItem(
+                            Icons.monetization_on_outlined,
+                            salary != "-" ? salary : "Negosiasi",
+                            "Gaji",
+                          ),
+                          _buildInfoItem(
+                            Icons.access_time,
+                            type != "-" ? type : "Full Time",
+                            "Tipe",
+                          ),
+                          _buildInfoItem(
+                            Icons.location_on_outlined,
+                            location != "-" ? location : "Remote",
+                            "Lokasi",
+                          ),
                         ],
                       ),
                     ),
@@ -192,12 +200,19 @@ class RecruiterJobPage extends StatelessWidget {
                       children: [
                         const Text(
                           "Tentang Lowongan",
-                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87),
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black87,
+                          ),
                         ),
                         const SizedBox(height: 12),
                         Text(
                           job.description,
-                          style: const TextStyle(color: Colors.grey, height: 1.5),
+                          style: const TextStyle(
+                            color: Colors.grey,
+                            height: 1.5,
+                          ),
                         ),
 
                         const SizedBox(height: 30),
@@ -208,17 +223,28 @@ class RecruiterJobPage extends StatelessWidget {
                           children: [
                             const Text(
                               "Pelamar (Applicant)",
-                              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87),
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black87,
+                              ),
                             ),
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 4,
+                              ),
                               decoration: BoxDecoration(
                                 color: const Color(0xFFA01355),
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Text(
                                 "${controller.applications.length}",
-                                style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                             ),
                           ],
@@ -228,7 +254,12 @@ class RecruiterJobPage extends StatelessWidget {
                         if (controller.applications.isEmpty)
                           const Padding(
                             padding: EdgeInsets.symmetric(vertical: 20),
-                            child: Center(child: Text("Belum ada pelamar.", style: TextStyle(color: Colors.grey))),
+                            child: Center(
+                              child: Text(
+                                "Belum ada pelamar.",
+                                style: TextStyle(color: Colors.grey),
+                              ),
+                            ),
                           )
                         else
                           ListView.separated(
@@ -236,11 +267,18 @@ class RecruiterJobPage extends StatelessWidget {
                             shrinkWrap: true,
                             physics: const NeverScrollableScrollPhysics(),
                             itemCount: controller.applications.length,
-                            separatorBuilder: (context, index) => const SizedBox(height: 12),
-                            itemBuilder: (context, index) => _buildApplicantCard(
-                              controller.applications[index],
-                                  () => controller.toDetail(controller.applications[index].application.id),
-                            ),
+                            separatorBuilder: (context, index) =>
+                                const SizedBox(height: 12),
+                            itemBuilder: (context, index) =>
+                                _buildApplicantCard(
+                                  controller.applications[index],
+                                  () => controller.toDetail(
+                                    controller
+                                        .applications[index]
+                                        .application
+                                        .id,
+                                  ),
+                                ),
                           ),
 
                         const SizedBox(height: 40),
@@ -258,7 +296,10 @@ class RecruiterJobPage extends StatelessWidget {
               right: 0,
               child: SafeArea(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 10,
+                  ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -271,13 +312,19 @@ class RecruiterJobPage extends StatelessWidget {
                             color: Colors.white.withOpacity(0.2),
                             shape: BoxShape.circle,
                           ),
-                          child: const Icon(Icons.arrow_back, color: Colors.white),
+                          child: const Icon(
+                            Icons.arrow_back,
+                            color: Colors.white,
+                          ),
                         ),
                       ),
                       // Actions (Bookmark & Share)
                       Row(
                         children: [
-                          const Icon(Icons.bookmark_border, color: Colors.white),
+                          const Icon(
+                            Icons.bookmark_border,
+                            color: Colors.white,
+                          ),
                           const SizedBox(width: 16),
                           const Icon(Icons.share_outlined, color: Colors.white),
                         ],
@@ -309,22 +356,26 @@ class RecruiterJobPage extends StatelessWidget {
           constraints: const BoxConstraints(maxWidth: 80),
           child: Text(
             value,
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Colors.black87),
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 14,
+              color: Colors.black87,
+            ),
             textAlign: TextAlign.center,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
         ),
         const SizedBox(height: 4),
-        Text(
-          label,
-          style: const TextStyle(color: Colors.grey, fontSize: 12),
-        ),
+        Text(label, style: const TextStyle(color: Colors.grey, fontSize: 12)),
       ],
     );
   }
 
-  Widget _buildApplicantCard(JobApplicationWithSeeker data, VoidCallback onTap) {
+  Widget _buildApplicantCard(
+    JobApplicationWithSeeker data,
+    VoidCallback onTap,
+  ) {
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(12),
@@ -351,7 +402,13 @@ class RecruiterJobPage extends StatelessWidget {
                   ? NetworkImage(data.seeker.pictureUrl) as ImageProvider
                   : null,
               child: data.seeker.pictureUrl.isEmpty
-                  ? Text(data.seeker.name[0].toUpperCase(), style: const TextStyle(color: Color(0xFFA01355), fontWeight: FontWeight.bold))
+                  ? Text(
+                      data.seeker.name[0].toUpperCase(),
+                      style: const TextStyle(
+                        color: Color(0xFFA01355),
+                        fontWeight: FontWeight.bold,
+                      ),
+                    )
                   : null,
             ),
             const SizedBox(width: 16),
@@ -361,15 +418,26 @@ class RecruiterJobPage extends StatelessWidget {
                 children: [
                   Text(
                     data.seeker.name,
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   const SizedBox(height: 4),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 2,
+                    ),
                     decoration: BoxDecoration(
-                      color: data.application.status == JobApplicationStatus.PENDING
+                      color:
+                          data.application.status ==
+                              JobApplicationStatus.PENDING
                           ? Colors.orange[100]
-                          : (data.application.status == JobApplicationStatus.ACCEPTED ? Colors.green[100] : Colors.red[100]),
+                          : (data.application.status ==
+                                    JobApplicationStatus.ACCEPTED
+                                ? Colors.green[100]
+                                : Colors.red[100]),
                       borderRadius: BorderRadius.circular(4),
                     ),
                     child: Text(
@@ -377,9 +445,14 @@ class RecruiterJobPage extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 10,
                         fontWeight: FontWeight.bold,
-                        color: data.application.status == JobApplicationStatus.PENDING
+                        color:
+                            data.application.status ==
+                                JobApplicationStatus.PENDING
                             ? Colors.orange[800]
-                            : (data.application.status == JobApplicationStatus.ACCEPTED ? Colors.green[800] : Colors.red[800]),
+                            : (data.application.status ==
+                                      JobApplicationStatus.ACCEPTED
+                                  ? Colors.green[800]
+                                  : Colors.red[800]),
                       ),
                     ),
                   ),

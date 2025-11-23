@@ -403,12 +403,12 @@ class JobSeekerJobListPage extends StatelessWidget {
                 ),
                 const SizedBox(width: 4),
                 Text(
-                  "Remote", // Ganti dengan job.location
+                  job.workPolicy ?? job.location,
                   style: TextStyle(color: kSubtitleColor, fontSize: 12),
                 ),
                 const Spacer(),
                 Text(
-                  "Rp 2 jt - Rp 4 jt /bulan", // Ganti dengan job.salaryRange
+                  job.salary ?? "-",
                   style: TextStyle(
                     color: kTextColor,
                     fontWeight: FontWeight.bold,

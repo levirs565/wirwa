@@ -131,7 +131,7 @@ class LoginPage extends StatelessWidget {
                                 ),
                                 const SizedBox(width: 12),
                                 Text(
-                                  "Masuk & Daftar dengan Google",
+                                  "Sign in & up with Google",
                                   style: GoogleFonts.poppins(
                                     fontSize: 13,
                                     fontWeight: FontWeight.w600,

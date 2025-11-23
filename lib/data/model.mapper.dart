@@ -547,6 +547,46 @@ class JobVacancyMapper extends ClassMapperBase<JobVacancy> {
     _$recruiterId,
     key: r'recruiter_id',
   );
+  static String? _$jobType(JobVacancy v) => v.jobType;
+  static const Field<JobVacancy, String> _f$jobType = Field(
+    'jobType',
+    _$jobType,
+    key: r'job_type',
+    opt: true,
+  );
+  static String? _$workPolicy(JobVacancy v) => v.workPolicy;
+  static const Field<JobVacancy, String> _f$workPolicy = Field(
+    'workPolicy',
+    _$workPolicy,
+    key: r'work_policy',
+    opt: true,
+  );
+  static String? _$salary(JobVacancy v) => v.salary;
+  static const Field<JobVacancy, String> _f$salary = Field(
+    'salary',
+    _$salary,
+    opt: true,
+  );
+  static String? _$minAge(JobVacancy v) => v.minAge;
+  static const Field<JobVacancy, String> _f$minAge = Field(
+    'minAge',
+    _$minAge,
+    key: r'min_age',
+    opt: true,
+  );
+  static String? _$skill(JobVacancy v) => v.skill;
+  static const Field<JobVacancy, String> _f$skill = Field(
+    'skill',
+    _$skill,
+    opt: true,
+  );
+  static String? _$minEducation(JobVacancy v) => v.minEducation;
+  static const Field<JobVacancy, String> _f$minEducation = Field(
+    'minEducation',
+    _$minEducation,
+    key: r'min_education',
+    opt: true,
+  );
 
   @override
   final MappableFields<JobVacancy> fields = const {
@@ -558,6 +598,12 @@ class JobVacancyMapper extends ClassMapperBase<JobVacancy> {
     #startDate: _f$startDate,
     #endDate: _f$endDate,
     #recruiterId: _f$recruiterId,
+    #jobType: _f$jobType,
+    #workPolicy: _f$workPolicy,
+    #salary: _f$salary,
+    #minAge: _f$minAge,
+    #skill: _f$skill,
+    #minEducation: _f$minEducation,
   };
 
   static JobVacancy _instantiate(DecodingData data) {
@@ -570,6 +616,12 @@ class JobVacancyMapper extends ClassMapperBase<JobVacancy> {
       startDate: data.dec(_f$startDate),
       endDate: data.dec(_f$endDate),
       recruiterId: data.dec(_f$recruiterId),
+      jobType: data.dec(_f$jobType),
+      workPolicy: data.dec(_f$workPolicy),
+      salary: data.dec(_f$salary),
+      minAge: data.dec(_f$minAge),
+      skill: data.dec(_f$skill),
+      minEducation: data.dec(_f$minEducation),
     );
   }
 
@@ -642,6 +694,12 @@ abstract class JobVacancyCopyWith<$R, $In extends JobVacancy, $Out>
     DateTime? startDate,
     DateTime? endDate,
     String? recruiterId,
+    String? jobType,
+    String? workPolicy,
+    String? salary,
+    String? minAge,
+    String? skill,
+    String? minEducation,
   });
   JobVacancyCopyWith<$R2, $In, $Out2> $chain<$R2, $Out2>(Then<$Out2, $R2> t);
 }
@@ -664,6 +722,12 @@ class _JobVacancyCopyWithImpl<$R, $Out>
     DateTime? startDate,
     Object? endDate = $none,
     String? recruiterId,
+    Object? jobType = $none,
+    Object? workPolicy = $none,
+    Object? salary = $none,
+    Object? minAge = $none,
+    Object? skill = $none,
+    Object? minEducation = $none,
   }) => $apply(
     FieldCopyWithData({
       if (id != null) #id: id,
@@ -674,6 +738,12 @@ class _JobVacancyCopyWithImpl<$R, $Out>
       if (startDate != null) #startDate: startDate,
       if (endDate != $none) #endDate: endDate,
       if (recruiterId != null) #recruiterId: recruiterId,
+      if (jobType != $none) #jobType: jobType,
+      if (workPolicy != $none) #workPolicy: workPolicy,
+      if (salary != $none) #salary: salary,
+      if (minAge != $none) #minAge: minAge,
+      if (skill != $none) #skill: skill,
+      if (minEducation != $none) #minEducation: minEducation,
     }),
   );
   @override
@@ -686,6 +756,12 @@ class _JobVacancyCopyWithImpl<$R, $Out>
     startDate: data.get(#startDate, or: $value.startDate),
     endDate: data.get(#endDate, or: $value.endDate),
     recruiterId: data.get(#recruiterId, or: $value.recruiterId),
+    jobType: data.get(#jobType, or: $value.jobType),
+    workPolicy: data.get(#workPolicy, or: $value.workPolicy),
+    salary: data.get(#salary, or: $value.salary),
+    minAge: data.get(#minAge, or: $value.minAge),
+    skill: data.get(#skill, or: $value.skill),
+    minEducation: data.get(#minEducation, or: $value.minEducation),
   );
 
   @override

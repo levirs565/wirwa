@@ -59,8 +59,12 @@ class JobVacancy with JobVacancyMappable {
   final DateTime startDate;
   final DateTime? endDate;
   final String recruiterId;
-
-  // TODO: Salary
+  final String? jobType;
+  final String? workPolicy;
+  final String? salary;
+  final String? minAge;
+  final String? skill;
+  final String? minEducation;
 
   JobVacancy({
     required this.id,
@@ -71,6 +75,12 @@ class JobVacancy with JobVacancyMappable {
     required this.startDate,
     required this.endDate,
     required this.recruiterId,
+    required this.jobType,
+    required this.workPolicy,
+    required this.salary,
+    required this.minAge,
+    required this.skill,
+    required this.minEducation,
   });
 }
 
