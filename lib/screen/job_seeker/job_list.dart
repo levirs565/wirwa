@@ -8,11 +8,15 @@ class JobSeekerJobListController extends GetxController {
   final JobVacancyRepository jobVacancyRepository = Get.find();
   final UserRepository userRepository = Get.find();
   final AuthRepository authRepository = Get.find();
+  final JobApplicationRepository jobApplicationRepository = Get.find();
+
   final RxList<JobVacancy> jobs = <JobVacancy>[].obs;
-
   final Rxn<UserJobSeeker> currentUser = Rxn<UserJobSeeker>();
-
   final RxMap<String, UserRecruiter> recruiters = <String, UserRecruiter>{}.obs;
+
+  // Map untuk menyimpan status aplikasi per job
+  final RxMap<String, JobApplication?> applications =
+      <String, JobApplication?>{}.obs;
 
   final List<String> categories = [
     "Semua",
@@ -42,9 +46,10 @@ class JobSeekerJobListController extends GetxController {
       jobs.clear();
       jobs.insertAll(0, value);
 
-      // Fetch recruiter data untuk setiap job
+      // Fetch recruiter data dan status aplikasi untuk setiap job
       for (var job in value) {
         _fetchRecruiter(job.recruiterId);
+        _checkApplicationStatus(job.id);
       }
     });
   }
@@ -62,11 +67,41 @@ class JobSeekerJobListController extends GetxController {
     }
   }
 
-  void toDetail(String id) {
-    Get.to(
+  // Method untuk cek apakah user sudah melamar job ini
+  Future<void> _checkApplicationStatus(String jobId) async {
+    final userId = authRepository.getUserId();
+    if (userId != null) {
+      try {
+        final application = await jobApplicationRepository.get(jobId, userId);
+        applications[jobId] = application;
+      } catch (e) {
+        print("Error checking application status: $e");
+        applications[jobId] = null;
+      }
+    }
+  }
+
+  // Check apakah user sudah melamar
+  bool hasApplied(String jobId) {
+    return applications[jobId] != null;
+  }
+
+  // Method untuk refresh status aplikasi setelah kembali dari detail
+  Future<void> refreshApplicationStatus() async {
+    for (var job in jobs) {
+      await _checkApplicationStatus(job.id);
+    }
+  }
+
+  void toDetail(String id) async {
+    // Navigate ke detail page
+    await Get.to(
       () => JobSeekerJobPage(),
       arguments: JobSeekerJobPage.createArguments(id),
     );
+
+    // Setelah kembali dari detail page, refresh status aplikasi
+    await refreshApplicationStatus();
   }
 
   void changeCategory(int index) {
@@ -446,26 +481,49 @@ class JobSeekerJobListPage extends StatelessWidget {
             ),
             const SizedBox(height: 16),
 
-            // Tombol Daftar
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () => controller.toDetail(job.id),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFA01355), // Warna maroon
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+            // Tombol Daftar - Berubah jadi "Sudah Daftar" jika sudah melamar
+            Obx(() {
+              final hasApplied = controller.hasApplied(job.id);
+
+              return SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: hasApplied
+                      ? null // Disable button jika sudah daftar
+                      : () => controller.toDetail(job.id),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: hasApplied
+                        ? Colors
+                              .grey
+                              .shade400 // Abu-abu jika sudah daftar
+                        : const Color(0xFFA01355), // Maroon jika belum
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    elevation: 0,
+                    disabledBackgroundColor: Colors.grey.shade400,
+                    disabledForegroundColor: Colors.white,
                   ),
-                  elevation: 0,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      if (hasApplied)
+                        const Icon(Icons.check_circle_outline, size: 18),
+                      if (hasApplied) const SizedBox(width: 8),
+                      Text(
+                        hasApplied ? "Sudah Daftar" : "Daftar",
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-                child: const Text(
-                  "Daftar",
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-                ),
-              ),
-            ),
+              );
+            }),
           ],
         ),
       ),
