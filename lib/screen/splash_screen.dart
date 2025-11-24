@@ -23,7 +23,6 @@ class _SplashScreenState extends State<SplashScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Animasi Logo Tanpa Kotak
             TweenAnimationBuilder(
               tween: Tween<double>(begin: 0.0, end: 1.0),
               duration: const Duration(milliseconds: 1200),

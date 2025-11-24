@@ -77,13 +77,12 @@ class JobSeekerJobPage extends StatelessWidget {
   final Color kSubtitleColor = const Color(0xFF8A8A8A);
   final Color kBackgroundColor = const Color(
     0xFFFFF5F7,
-  ); // Pink muda untuk background bawah
+  );
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: kBackgroundColor,
-      // Tombol Lamar Melayang di Bawah
       bottomNavigationBar: _buildBottomActionButton(),
       body: Obx(
         () => controller.job.value == null
@@ -215,47 +214,94 @@ class JobSeekerJobPage extends StatelessWidget {
                 ),
                 const SizedBox(height: 20),
 
-                // Judul Bagian
                 const Text(
                   "Deskripsi Pekerjaan",
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 10),
-                // Isi Deskripsi Utama
                 Text(
                   job.description,
                   style: TextStyle(color: kSubtitleColor, height: 1.5),
                 ),
                 const SizedBox(height: 20),
 
-                // Kualifikasi (Contoh Poin-Poin)
                 const Text(
-                  "Kualifikasi",
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  "Informasi Pekerjaan",
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
-                const SizedBox(height: 10),
-                _buildBulletPoint("Pendidikan minimal S1 semua jurusan"),
-                _buildBulletPoint(
-                  "Pengalaman minimal 1 tahun di bidang terkait",
+                const SizedBox(height: 15),
+
+                if (job.workPolicy != null && job.workPolicy!.isNotEmpty)
+                  _buildDetailRow(
+                    Icons.business_center_outlined,
+                    "Kebijakan Kerja",
+                    job.workPolicy!,
+                  ),
+                _buildDetailRow(
+                  Icons.calendar_today_outlined,
+                  "Tanggal Awal Pendaftaran",
+                  _formatDate(job.startDate),
                 ),
-                _buildBulletPoint("Mampu bekerja dalam tim maupun individu"),
+                if (job.endDate != null)
+                  _buildDetailRow(
+                    Icons.event_outlined,
+                    "Tanggal Berakhir",
+                    _formatDate(job.endDate!),
+                  ),
+
                 const SizedBox(height: 20),
 
-                // Tanggung Jawab (Contoh Poin-Poin)
                 const Text(
-                  "Tanggung Jawab",
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  "Kualifikasi",
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
-                const SizedBox(height: 10),
-                _buildBulletPoint(
-                  "Mengelola dan mengembangkan strategi pemasaran",
-                ),
-                _buildBulletPoint(
-                  "Melakukan riset pasar dan analisis kompetitor",
-                ),
-                const SizedBox(
-                  height: 80,
-                ), // Spasi agar konten tidak tertutup tombol di bawah
+                const SizedBox(height: 15),
+
+                if (job.minEducation != null && job.minEducation!.isNotEmpty)
+                  _buildDetailRow(
+                    Icons.school_outlined,
+                    "Pendidikan Minimal",
+                    job.minEducation!,
+                  ),
+                if (job.minAge != null && job.minAge!.isNotEmpty)
+                  _buildDetailRow(
+                    Icons.person_outline,
+                    "Umur Minimal",
+                    "${job.minAge} tahun",
+                  ),
+                if (job.skill != null && job.skill!.isNotEmpty) ...[
+                  const SizedBox(height: 10),
+                  _buildDetailRow(
+                    Icons.stars_outlined,
+                    "Keterampilan",
+                    job.skill!,
+                  ),
+                ],
+                const SizedBox(height: 20),
+                // const Text(
+                //   "Persyaratan Tambahan",
+                //   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                // ),
+                // const SizedBox(height: 10),
+                // _buildBulletPoint("Mampu bekerja dalam tim maupun individu"),
+                // _buildBulletPoint("Memiliki komunikasi yang baik"),
+                // _buildBulletPoint("Jujur dan bertanggung jawab"),
+                // const SizedBox(height: 20),
+
+                // const Text(
+                //   "Tanggung Jawab",
+                //   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                // ),
+                // const SizedBox(height: 10),
+                // _buildBulletPoint(
+                //   "Mengelola dan mengembangkan strategi pemasaran",
+                // ),
+                // _buildBulletPoint(
+                //   "Melakukan riset pasar dan analisis kompetitor",
+                // ),
+                // const SizedBox(
+                //   height: 80,
+                // ),
               ],
             ),
           ),
@@ -266,7 +312,6 @@ class JobSeekerJobPage extends StatelessWidget {
 
   // --- Widget Pembantu Kecil ---
 
-  // Widget untuk item info di header (Gaji, Lokasi, Tipe)
   Widget _buildInfoItem(IconData icon, String label, String value) {
     return Column(
       children: [
@@ -285,12 +330,10 @@ class JobSeekerJobPage extends StatelessWidget {
     );
   }
 
-  // Garis pemisah vertikal kecil
   Widget _buildDivider() {
     return Container(height: 30, width: 1, color: Colors.grey.shade300);
   }
 
-  // Tombol Tab (Deskripsi / Perusahaan)
   Widget _buildTabButton(String text, {required bool isActive}) {
     return Column(
       children: [
@@ -335,7 +378,61 @@ class JobSeekerJobPage extends StatelessWidget {
     );
   }
 
-  // Tombol Aksi di Bagian Bawah (Lamar)
+  Widget _buildDetailRow(IconData icon, String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12.0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, color: kPrimaryColor, size: 20),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: kSubtitleColor,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  value,
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: kTextColor,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _formatDate(DateTime date) {
+    final months = [
+      'Januari',
+      'Februari',
+      'Maret',
+      'April',
+      'Mei',
+      'Juni',
+      'Juli',
+      'Agustus',
+      'September',
+      'Oktober',
+      'November',
+      'Desember',
+    ];
+    return "${date.day} ${months[date.month - 1]} ${date.year}";
+  }
+
   Widget _buildBottomActionButton() {
     return Container(
       padding: const EdgeInsets.all(20),
@@ -363,9 +460,7 @@ class JobSeekerJobPage extends StatelessWidget {
             elevation: 0,
           ),
           child: Text(
-            isApplied
-                ? "Sudah Dilamar"
-                : "Lamar Sekarang",
+            isApplied ? "Sudah Dilamar" : "Lamar Sekarang",
             style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,

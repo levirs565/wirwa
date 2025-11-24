@@ -71,7 +71,6 @@ class JobSeekerJobListController extends GetxController {
 
   void changeCategory(int index) {
     selectedCategoryIndex.value = index;
-    // Disini nanti logika filter list jobs berdasarkan kategori
   }
 }
 
@@ -82,8 +81,8 @@ class JobSeekerJobListPage extends StatelessWidget {
   );
 
   // Definisi Warna sesuai gambar
-  final Color kBackgroundColor = const Color(0xFFFFF5F7); // Pink muda sekali
-  final Color kPrimaryColor = const Color(0xFFFF8E88); // Pink tombol/aksen
+  final Color kBackgroundColor = const Color(0xFFFFF5F7);
+  final Color kPrimaryColor = const Color(0xFFFF8E88);
   final Color kTextColor = const Color(0xFF1F1F1F);
   final Color kSubtitleColor = const Color(0xFF8A8A8A);
 
@@ -91,20 +90,6 @@ class JobSeekerJobListPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: kBackgroundColor,
-      // Menambahkan Bottom Nav Bar Dummy agar mirip gambar
-      // bottomNavigationBar: BottomNavigationBar(
-      //   type: BottomNavigationBarType.fixed,
-      //   selectedItemColor: kPrimaryColor,
-      //   unselectedItemColor: Colors.grey,
-      //   showSelectedLabels: true,
-      //   showUnselectedLabels: true,
-      //   items: const [
-      //     BottomNavigationBarItem(icon: Icon(Icons.home_filled), label: 'Beranda'),
-      //     BottomNavigationBarItem(icon: Icon(Icons.work_outline), label: 'Pelatihan'),
-      //     BottomNavigationBarItem(icon: Icon(Icons.chat_bubble_outline), label: 'Chat'),
-      //     BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: 'Profil'),
-      //   ],
-      // ),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
@@ -126,8 +111,7 @@ class JobSeekerJobListPage extends StatelessWidget {
                     : ListView.builder(
                         padding: const EdgeInsets.symmetric(horizontal: 20),
                         shrinkWrap: true,
-                        physics:
-                            const NeverScrollableScrollPhysics(), // Agar scroll ikut parent
+                        physics: const NeverScrollableScrollPhysics(),
                         itemCount: controller.jobs.length,
                         itemBuilder: (context, index) =>
                             _buildJobCard(context, controller.jobs[index]),
@@ -141,22 +125,24 @@ class JobSeekerJobListPage extends StatelessWidget {
     );
   }
 
-  // 1. Bagian Header (Teks, Ilustrasi, Search Bar)
   Widget _buildHeader() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Baris atas dengan greeting
-          Row(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10),
+          child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Obx(() {
                 final userName = controller.currentUser.value?.name ?? "User";
                 return Row(
                   children: [
-                    Icon(Icons.waving_hand, color: Color(0xFFFFB800), size: 24),
+                    const Icon(
+                      Icons.waving_hand,
+                      color: Color(0xFFFFB800),
+                      size: 24,
+                    ),
                     const SizedBox(width: 8),
                     Text(
                       "Halo, $userName!",
@@ -184,67 +170,108 @@ class JobSeekerJobListPage extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 10),
+        ),
+        const SizedBox(height: 10),
 
-          // Row untuk Teks Besar dan Gambar Ilustrasi
-          Row(
-            children: [
-              Expanded(
-                flex: 6,
-                child: Text(
-                  "Ayo, Cari Pekerjaan\nSesuai dengan\nDirimu!",
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: kPrimaryColor.withOpacity(0.8),
-                    height: 1.2,
+        Stack(
+          clipBehavior: Clip.none,
+          children: [
+            Container(
+              margin: const EdgeInsets.symmetric(horizontal: 20),
+              padding: const EdgeInsets.fromLTRB(20, 20, 20, 25),
+              decoration: BoxDecoration(
+                color: const Color(0xFFA01355),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    flex: 6,
+                    child: Padding(
+                      padding: const EdgeInsets.only(bottom: 50, top: 0),
+                      child: Text(
+                        "ayo, cari pekerjaan\nsesuai dengan\ndirimu!",
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                          height: 1.2,
+                        ),
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    flex: 4,
+                    child: Image.asset(
+                      'assets/images/gambar4.png',
+                      height: 130,
+                      fit: BoxFit.contain,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Icon(
+                          Icons.person_search_rounded,
+                          size: 80,
+                          color: Colors.white.withOpacity(0.7),
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            Positioned(
+              bottom: 10,
+              left: 35,
+              right: 35,
+              child: Container(
+                height: 50,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(25),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.15),
+                      blurRadius: 15,
+                      offset: const Offset(0, 5),
+                    ),
+                  ],
+                ),
+                child: const TextField(
+                  textAlignVertical: TextAlignVertical.center,
+                  decoration: InputDecoration(
+                    hintText: "Cari Pekerjaan",
+                    hintStyle: TextStyle(
+                      color: Color(0xFF8A8A8A),
+                      fontSize: 14,
+                    ),
+                    prefixIcon: Padding(
+                      padding: EdgeInsets.only(left: 15, right: 10),
+                      child: Icon(
+                        Icons.search,
+                        color: Color(0xFFFF8E88),
+                        size: 24,
+                      ),
+                    ),
+                    prefixIconConstraints: BoxConstraints(
+                      minWidth: 40,
+                      minHeight: 40,
+                    ),
+                    border: InputBorder.none,
+                    contentPadding: EdgeInsets.zero,
+                    isDense: true,
                   ),
                 ),
               ),
-              Expanded(
-                flex: 4,
-                // Ganti ini dengan Image.asset('assets/illustration.png') jika punya gambarnya
-                child: Icon(
-                  Icons.person_search_rounded,
-                  size: 80,
-                  color: Colors.brown[300],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
+            ),
+          ],
+        ),
 
-          // Search Bar
-          Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(15),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
-            child: const TextField(
-              decoration: InputDecoration(
-                hintText: "Cari Pekerjaan",
-                prefixIcon: Icon(Icons.search, color: Colors.redAccent),
-                border: InputBorder.none,
-                contentPadding: EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 15,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
+        const SizedBox(height: 40),
+      ],
     );
   }
 
-  // 2. Bagian Filter Kategori (Horizontal Scroll)
   Widget _buildCategoryFilter() {
     return SizedBox(
       height: 40,
@@ -416,6 +443,28 @@ class JobSeekerJobListPage extends StatelessWidget {
                   ),
                 ),
               ],
+            ),
+            const SizedBox(height: 16),
+
+            // Tombol Daftar
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () => controller.toDetail(job.id),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFA01355), // Warna maroon
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  elevation: 0,
+                ),
+                child: const Text(
+                  "Daftar",
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                ),
+              ),
             ),
           ],
         ),
