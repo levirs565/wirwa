@@ -170,3 +170,60 @@ class WorkshopWithRecruiter {
 
   WorkshopWithRecruiter({required this.workshop, required this.recruiter});
 }
+
+@MappableClass(caseStyle: CaseStyle.snakeCase)
+class Chat with ChatMappable {
+  final String id;
+  final DateTime createdAt;
+  final String recruiterId, jobSeekerId;
+  final String? jobVacancyId;
+  final String message;
+  final bool isRecruiter;
+
+  Chat({
+    required this.id,
+    required this.createdAt,
+    required this.recruiterId,
+    required this.jobSeekerId,
+    required this.jobVacancyId,
+    required this.message,
+    required this.isRecruiter
+  });
+}
+
+@MappableClass(caseStyle: CaseStyle.snakeCase)
+class JobVacancyMinimal with JobVacancyMinimalMappable {
+  final String title;
+
+  JobVacancyMinimal({required this.title});
+}
+
+class ChatWithJobVacancyMinimal {
+  final Chat chat;
+  final JobVacancyMinimal? vacancy;
+
+  ChatWithJobVacancyMinimal({required this.chat, required this.vacancy});
+}
+
+class JobSeekerMinimalWithChat {
+  final UserJobSeekerMinimal seeker;
+  final Chat chat;
+
+  JobSeekerMinimalWithChat({required this.seeker, required this.chat});
+}
+
+
+@MappableClass(caseStyle: CaseStyle.snakeCase)
+class UserRecruiterMinimal with UserRecruiterMinimalMappable {
+  final String name;
+  final String? pictureUrl;
+
+  UserRecruiterMinimal({required this.name, required this.pictureUrl});
+}
+
+class RecruiterMinimalWithChat {
+  final UserRecruiterMinimal recruiter;
+  final Chat chat;
+
+  RecruiterMinimalWithChat({required this.recruiter, required this.chat});
+}

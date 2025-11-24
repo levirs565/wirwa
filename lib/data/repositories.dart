@@ -77,3 +77,16 @@ abstract interface class WorkshopRepository {
 
   Future<List<WorkshopWithRecruiter>> getAll();
 }
+
+abstract interface class ChatRepository {
+  Future<void> add(Chat chat);
+
+  Future<List<JobSeekerMinimalWithChat>> getByRecruiterId(String recruiterId);
+
+  Future<List<RecruiterMinimalWithChat>> getByJobSeekerId(String jobSeekerId);
+
+  Future<List<ChatWithJobVacancyMinimal>> getConversations(
+    String recruiterId,
+    String jobSeekerId,
+  );
+}
