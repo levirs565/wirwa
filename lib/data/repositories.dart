@@ -43,7 +43,11 @@ abstract interface class JobVacancyRepository {
 
   Future<void> delete(String id);
 
-  Future<List<JobVacancy>> getAll({String? recruiterIdFilter});
+  Future<List<JobVacancy>> getAll({
+    String? recruiterIdFilter,
+    String? textFilter,
+    String? jobTypeFilter,
+  });
 
   Future<List<JobVacancy>> getAdvertised();
 

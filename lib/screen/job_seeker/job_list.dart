@@ -21,6 +21,7 @@ class JobSeekerJobListController extends GetxController {
     "Freelance",
   ];
   final RxInt selectedCategoryIndex = 0.obs;
+  String textFilter = "";
 
   @override
   void onReady() {
@@ -38,15 +39,22 @@ class JobSeekerJobListController extends GetxController {
   }
 
   void refresh() {
-    jobVacancyRepository.getAll().then((value) {
-      jobs.clear();
-      jobs.insertAll(0, value);
+    jobVacancyRepository
+        .getAll(
+          textFilter: textFilter,
+          jobTypeFilter: selectedCategoryIndex.value == 0
+              ? null
+              : categories[selectedCategoryIndex.value],
+        )
+        .then((value) {
+          jobs.clear();
+          jobs.insertAll(0, value);
 
-      // Fetch recruiter data untuk setiap job
-      for (var job in value) {
-        _fetchRecruiter(job.recruiterId);
-      }
-    });
+          // Fetch recruiter data untuk setiap job
+          for (var job in value) {
+            _fetchRecruiter(job.recruiterId);
+          }
+        });
   }
 
   Future<void> _fetchRecruiter(String recruiterId) async {
@@ -71,7 +79,12 @@ class JobSeekerJobListController extends GetxController {
 
   void changeCategory(int index) {
     selectedCategoryIndex.value = index;
-    // Disini nanti logika filter list jobs berdasarkan kategori
+    refresh();
+  }
+
+  void setFilter(String filter) {
+    textFilter = filter;
+    refresh();
   }
 }
 
@@ -126,8 +139,8 @@ class JobSeekerJobListPage extends StatelessWidget {
                     : ListView.builder(
                         padding: const EdgeInsets.symmetric(horizontal: 20),
                         shrinkWrap: true,
-                        physics:
-                            const NeverScrollableScrollPhysics(), // Agar scroll ikut parent
+                        physics: const NeverScrollableScrollPhysics(),
+                        // Agar scroll ikut parent
                         itemCount: controller.jobs.length,
                         itemBuilder: (context, index) =>
                             _buildJobCard(context, controller.jobs[index]),
@@ -227,7 +240,8 @@ class JobSeekerJobListPage extends StatelessWidget {
                 ),
               ],
             ),
-            child: const TextField(
+            child: TextField(
+              onChanged: controller.setFilter,
               decoration: InputDecoration(
                 hintText: "Cari Pekerjaan",
                 prefixIcon: Icon(Icons.search, color: Colors.redAccent),

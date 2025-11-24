@@ -28,10 +28,16 @@ class JobVacancyDataSource implements JobVacancyRepository {
   }
 
   @override
-  Future<List<JobVacancy>> getAll({String? recruiterIdFilter}) async {
+  Future<List<JobVacancy>> getAll({String? recruiterIdFilter, String? textFilter, String? jobTypeFilter}) async {
     var query = client.from("job_vacancy").select();
     if (recruiterIdFilter != null) {
       query = query.eq("recruiter_id", recruiterIdFilter);
+    }
+    if (textFilter != null && textFilter.isNotEmpty) {
+      query = query.ilike("title", "%$textFilter%");
+    }
+    if (jobTypeFilter != null) {
+      query = query.eq("job_type", jobTypeFilter);
     }
     final data = await query.order("created_at", ascending: false);
     return data.map((data) => JobVacancyMapper.fromMap(data)).toList();
