@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:get/get.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:wirwa/data/model.dart';
@@ -21,10 +23,7 @@ class UserDataSource implements UserRepository {
 
   @override
   Future<void> setUserRole(String id, UserRole role) async {
-    await client.from('user').insert({
-      'id': id,
-      'role': role.toValue(),
-    });
+    await client.from('user').insert({'id': id, 'role': role.toValue()});
   }
 
   @override
@@ -54,9 +53,21 @@ class UserDataSource implements UserRepository {
 
   @override
   Future<UserJobSeeker?> getJobSeekerProfile(String id) async {
-    var data = await client.from("user_job_seeker").select().eq("id", id).maybeSingle();
+    var data = await client
+        .from("user_job_seeker")
+        .select()
+        .eq("id", id)
+        .maybeSingle();
     if (data == null) return null;
 
     return UserJobSeekerMapper.fromMap(data);
+  }
+
+  @override
+  Future<String> uploadProfile(String id, File file) async {
+    final path = "profile/$id";
+    await client.storage.from("files").upload(path, file);
+    final data = client.storage.from("files").getPublicUrl(path);
+    return data;
   }
 }

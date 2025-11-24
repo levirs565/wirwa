@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:wirwa/data/model.dart';
 
 abstract interface class AuthRepository {
@@ -24,6 +26,8 @@ abstract interface class UserRepository {
   Future<UserJobSeeker?> getJobSeekerProfile(String id);
 
   Future<void> setRecruiterProfile(UserRecruiter user);
+
+  Future<String> uploadProfile(String id, File file);
 }
 
 abstract interface class JobVacancyRepository {

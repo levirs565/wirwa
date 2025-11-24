@@ -18,7 +18,6 @@ class JobSeekerNewProfileController extends GetxController {
   final Rx<String?> phoneNumberError = Rxn(null);
   final Rx<DateTime?> birthDate = Rxn(null);
   final Rx<String?> birthDateError = Rxn(null);
-  final Rx<String> pictureUrl = "".obs;
   final Rx<File?> selectedImage = Rxn(null);
   final ImagePicker _picker = ImagePicker();
 
@@ -101,9 +100,6 @@ class JobSeekerNewProfileController extends GetxController {
 
         if (image != null) {
           selectedImage.value = File(image.path);
-          // For now, just use the local path
-          // In production, you should upload to Supabase Storage
-          pictureUrl.value = image.path;
         }
       }
     } catch (e) {
@@ -117,6 +113,13 @@ class JobSeekerNewProfileController extends GetxController {
   }
 
   Future<void> onSubmit() async {
+    final pictureUrl = selectedImage.value != null
+        ? await userRepository.uploadProfile(
+            authRepository.getUserId()!,
+            selectedImage.value!,
+          )
+        : null;
+
     await userRepository.setJobSeekerProfile(
       UserJobSeeker(
         id: authRepository.getUserId()!,
@@ -124,8 +127,9 @@ class JobSeekerNewProfileController extends GetxController {
         domisili: domisili.value,
         name: name.value,
         phoneNumber: phoneNumber.value,
-        pictureUrl: pictureUrl.value,
+        pictureUrl: pictureUrl ?? "",
       ),
+      // FIX THIS, pictureUrl nullable
     );
     Get.off(JobSeekerPage());
   }
@@ -201,36 +205,59 @@ class JobSeekerNewProfilePage extends StatelessWidget {
 
                       // Profile Picture Upload
                       Center(
-                        child: Obx(
-                          () => Column(
+                        child: GestureDetector(
+                          onTap: controller.pickImage,
+                          child: Stack(
                             children: [
-                              CircleAvatar(
-                                radius: 50,
-                                backgroundColor: Colors.grey[300],
-                                backgroundImage:
-                                    controller.selectedImage.value != null
-                                    ? FileImage(controller.selectedImage.value!)
-                                    : null,
-                                child: controller.selectedImage.value == null
-                                    ? Icon(
-                                        Icons.person,
-                                        size: 50,
-                                        color: Colors.grey[600],
-                                      )
-                                    : null,
-                              ),
-                              const SizedBox(height: 10),
-                              TextButton.icon(
-                                onPressed: controller.pickImage,
-                                icon: Icon(
-                                  Icons.upload,
-                                  color: Color(0xFFE91E63),
+                              Obx(
+                                () => Container(
+                                  width: 100,
+                                  height: 100,
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFE0E0E0),
+                                    shape: BoxShape.circle,
+                                    image:
+                                        controller.selectedImage.value != null
+                                        ? DecorationImage(
+                                            image: FileImage(
+                                              controller.selectedImage.value!,
+                                            ),
+                                            fit: BoxFit.cover,
+                                          )
+                                        : null,
+                                  ),
+                                  child: controller.selectedImage.value == null
+                                      ? const Center(
+                                          child: Text(
+                                            "LOGO",
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 18,
+                                            ),
+                                          ),
+                                        )
+                                      : null,
                                 ),
-                                label: Text(
-                                  controller.selectedImage.value == null
-                                      ? "Upload Foto Profil"
-                                      : "Ganti Foto",
-                                  style: TextStyle(color: Color(0xFFE91E63)),
+                              ),
+                              Positioned(
+                                bottom: 0,
+                                right: 0,
+                                child: Container(
+                                  padding: const EdgeInsets.all(6),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFE91E63),
+                                    shape: BoxShape.circle,
+                                    border: Border.all(
+                                      color: Colors.white,
+                                      width: 2,
+                                    ),
+                                  ),
+                                  child: const Icon(
+                                    Icons.camera_alt,
+                                    size: 14,
+                                    color: Colors.white,
+                                  ),
                                 ),
                               ),
                             ],

@@ -74,9 +74,14 @@ class JobSeekerProfileController extends GetxController {
 
           // Update profile with new image path
           if (profile.value != null) {
+            final pictureUrl = await userRepository.uploadProfile(
+              authRepository.getUserId()!,
+              selectedImage.value!,
+            );
+
             final updatedProfile = UserJobSeeker(
               id: profile.value!.id,
-              pictureUrl: image.path,
+              pictureUrl: pictureUrl,
               birthDate: profile.value!.birthDate,
               domisili: profile.value!.domisili,
               name: profile.value!.name,
@@ -172,18 +177,12 @@ class JobSeekerProfilePage extends StatelessWidget {
                             backgroundImage:
                                 controller.selectedImage.value != null
                                 ? FileImage(controller.selectedImage.value!)
-                                : (profileData.pictureUrl.isNotEmpty &&
-                                          File(
-                                            profileData.pictureUrl,
-                                          ).existsSync()
-                                      ? FileImage(File(profileData.pictureUrl))
+                                : (profileData.pictureUrl.isNotEmpty
+                                      ? NetworkImage(profileData.pictureUrl)
                                       : null),
                             child:
                                 controller.selectedImage.value == null &&
-                                    (profileData.pictureUrl.isEmpty ||
-                                        !File(
-                                          profileData.pictureUrl,
-                                        ).existsSync())
+                                    profileData.pictureUrl.isEmpty
                                 ? Icon(
                                     Icons.person,
                                     size: 50,

@@ -124,12 +124,19 @@ class RecruiterNewProfileController extends GetxController {
     if (!canSubmit) return;
 
     try {
+      final profileUrl = selectedImage.value != null
+          ? await userRepository.uploadProfile(
+              authRepository.getUserId()!,
+              selectedImage.value!,
+            )
+          : null;
+
       await userRepository.setRecruiterProfile(
         UserRecruiter(
           id: authRepository.getUserId()!,
           type: type.value,
           name: companyName.value,
-          pictureUrl: selectedImage.value?.path,
+          pictureUrl: profileUrl,
           phoneNumber: phoneNumber.value,
         ),
       );

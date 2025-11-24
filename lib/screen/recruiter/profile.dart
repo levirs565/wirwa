@@ -79,14 +79,17 @@ class RecruiterProfileController extends GetxController {
 
           // Update profile with new image path
           if (profile.value != null) {
+            final pictureUrl = await userRepository.uploadProfile(
+              authRepository.getUserId()!,
+              selectedImage.value!,
+            );
+
             final updatedProfile = UserRecruiter(
               id: profile.value!.id,
-              pictureUrl: image.path,
+              pictureUrl: pictureUrl,
               type: profile.value!.type,
               phoneNumber: profile.value!.phoneNumber,
-              // domisili: profile.value!.domisili,
               name: profile.value!.name,
-              // phoneNumber: profile.value!.phoneNumber,
             );
 
             await userRepository.setRecruiterProfile(updatedProfile);
@@ -203,26 +206,6 @@ class RecruiterProfilePage extends StatelessWidget {
       child: Obx(() {
         final user = controller.profile.value;
         final String displayName = user?.name ?? "Memuat...";
-        // initials intentionally unused for now; can be used for fallback avatar
-
-        // Determine image provider safely (local selected, then user pictureUrl)
-        ImageProvider? avatarImage;
-        try {
-          if (controller.selectedImage.value != null) {
-            avatarImage = FileImage(controller.selectedImage.value!);
-          } else {
-            final pic = user?.pictureUrl;
-            if (pic != null && pic.isNotEmpty) {
-              if (pic.startsWith('http')) {
-                avatarImage = NetworkImage(pic);
-              } else if (File(pic).existsSync()) {
-                avatarImage = FileImage(File(pic));
-              }
-            }
-          }
-        } catch (e) {
-          avatarImage = null;
-        }
 
         return Column(
           children: [
@@ -231,8 +214,10 @@ class RecruiterProfilePage extends StatelessWidget {
                 CircleAvatar(
                   radius: 50,
                   backgroundColor: Colors.white,
-                  backgroundImage: avatarImage,
-                  child: avatarImage == null
+                  backgroundImage: user?.pictureUrl != null
+                      ? NetworkImage(user!.pictureUrl!)
+                      : null,
+                  child: user?.pictureUrl == null
                       ? Icon(Icons.person, size: 50, color: Color(0xFFA01355))
                       : null,
                 ),
@@ -282,7 +267,7 @@ class RecruiterProfilePage extends StatelessWidget {
               children: [
                 const Icon(Icons.call, color: Colors.greenAccent, size: 16),
                 const SizedBox(width: 4),
-                 Text(
+                Text(
                   user?.phoneNumber ?? '-',
                   style: TextStyle(color: Colors.white, fontSize: 12),
                 ),

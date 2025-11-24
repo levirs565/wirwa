@@ -1,35 +1,70 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:wirwa/data/repositories.dart';
 
 class RecruiterEditCompanyController extends GetxController {
-  // --- Form Variables (Dummy Data) ---
+  final AuthRepository authRepository = Get.find();
+  final UserRepository userRepository = Get.find();
+
   final RxString companyName = "PT Pisang Kemul".obs; // Pre-filled dummy
   final RxString industry = "F & B".obs;
   final RxString companySize = "11 - 50 Karyawan".obs;
-  final RxString description = "Perusahaan yang bergerak di bidang kuliner pisang.".obs;
+  final RxString description =
+      "Perusahaan yang bergerak di bidang kuliner pisang.".obs;
   final RxString location = "Jakarta Selatan".obs;
   final RxString address = "Jl. H. Nawi Raya No. 10".obs;
+  final Rx<String?> pictureUrl = Rxn();
+
+  @override
+  void onReady() {
+    super.onReady();
+    refresh();
+  }
+
+  void refresh() async {
+    var profile = await userRepository.getRecruiterProfile(
+      authRepository.getUserId()!,
+    );
+    pictureUrl.value = profile!.pictureUrl;
+  }
 
   // --- Dummy Data untuk Dropdown ---
-  final List<String> industryList = ["Teknologi", "Kesehatan", "Pendidikan", "Keuangan", "F & B", "Retail"];
-  final List<String> sizeList = ["1 - 10 Karyawan", "11 - 50 Karyawan", "51 - 200 Karyawan", "201 - 500 Karyawan", "500+ Karyawan"];
+  final List<String> industryList = [
+    "Teknologi",
+    "Kesehatan",
+    "Pendidikan",
+    "Keuangan",
+    "F & B",
+    "Retail",
+  ];
+  final List<String> sizeList = [
+    "1 - 10 Karyawan",
+    "11 - 50 Karyawan",
+    "51 - 200 Karyawan",
+    "201 - 500 Karyawan",
+    "500+ Karyawan",
+  ];
 
   // --- Logic Simpan ---
   void saveChanges() {
     // Disini nanti logika simpan ke API/Firebase
     Get.back();
     Get.snackbar(
-        "Berhasil",
-        "Data perusahaan berhasil diperbarui",
-        backgroundColor: Colors.green,
-        colorText: Colors.white,
-        snackPosition: SnackPosition.BOTTOM,
-        margin: const EdgeInsets.all(16)
+      "Berhasil",
+      "Data perusahaan berhasil diperbarui",
+      backgroundColor: Colors.green,
+      colorText: Colors.white,
+      snackPosition: SnackPosition.BOTTOM,
+      margin: const EdgeInsets.all(16),
     );
   }
 
   // Helper BottomSheet
-  void showSelectionSheet(String title, List<String> options, RxString targetVariable) {
+  void showSelectionSheet(
+    String title,
+    List<String> options,
+    RxString targetVariable,
+  ) {
     Get.bottomSheet(
       Container(
         padding: const EdgeInsets.all(20),
@@ -41,18 +76,23 @@ class RecruiterEditCompanyController extends GetxController {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text("Pilih $title", style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            Text(
+              "Pilih $title",
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 10),
-            ...options.map((option) => ListTile(
-              title: Text(option),
-              onTap: () {
-                targetVariable.value = option;
-                Get.back();
-              },
-              trailing: targetVariable.value == option
-                  ? const Icon(Icons.check_circle, color: Color(0xFFA01355))
-                  : null,
-            )),
+            ...options.map(
+              (option) => ListTile(
+                title: Text(option),
+                onTap: () {
+                  targetVariable.value = option;
+                  Get.back();
+                },
+                trailing: targetVariable.value == option
+                    ? const Icon(Icons.check_circle, color: Color(0xFFA01355))
+                    : null,
+              ),
+            ),
           ],
         ),
       ),
@@ -86,7 +126,11 @@ class RecruiterEditCompanyPage extends StatelessWidget {
                         color: Color(0xFFA01355), // Merah Marun
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(Icons.arrow_back, color: Colors.white, size: 20),
+                      child: const Icon(
+                        Icons.arrow_back,
+                        color: Colors.white,
+                        size: 20,
+                      ),
                     ),
                   ),
                   const Expanded(
@@ -119,31 +163,45 @@ class RecruiterEditCompanyPage extends StatelessWidget {
                     Center(
                       child: Stack(
                         children: [
-                          Container(
-                            width: 100,
-                            height: 100,
-                            decoration: const BoxDecoration(
-                              color: Color(0xFFE0E0E0), // Abu-abu placeholder (atau ganti gambar)
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Center(
-                              child: Text(
-                                  "LOGO",
-                                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18)
-                              ),
+                          Obx(
+                            () => CircleAvatar(
+                              radius: 50,
+                              backgroundColor: Colors.white,
+                              backgroundImage: controller.pictureUrl.value != null
+                                  ? NetworkImage(controller.pictureUrl.value!)
+                                  : null,
+                              child: controller.pictureUrl.value == null
+                                  ? Icon(
+                                      Icons.person,
+                                      size: 50,
+                                      color: Color(0xFFA01355),
+                                    )
+                                  : null,
                             ),
                           ),
                           Positioned(
                             bottom: 0,
                             right: 0,
-                            child: Container(
-                              padding: const EdgeInsets.all(6),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFFE91E63), // Pink cerah
-                                shape: BoxShape.circle,
-                                border: Border.all(color: Colors.white, width: 2),
+                            child: GestureDetector(
+                              child: Container(
+                                padding: const EdgeInsets.all(6),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  shape: BoxShape.circle,
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.2),
+                                      spreadRadius: 1,
+                                      blurRadius: 3,
+                                    ),
+                                  ],
+                                ),
+                                child: Icon(
+                                  Icons.camera_alt,
+                                  color: Color(0xFFA01355),
+                                  size: 18,
+                                ),
                               ),
-                              child: const Icon(Icons.edit, size: 14, color: Colors.white),
                             ),
                           ),
                         ],
@@ -165,14 +223,22 @@ class RecruiterEditCompanyPage extends StatelessWidget {
                     _buildDropdownInput(
                       controller.industry,
                       "Tambahkan industri",
-                          () => controller.showSelectionSheet("Industri", controller.industryList, controller.industry),
+                      () => controller.showSelectionSheet(
+                        "Industri",
+                        controller.industryList,
+                        controller.industry,
+                      ),
                     ),
 
                     _buildLabel("Ukuran Perusahaan", isRequired: true),
                     _buildDropdownInput(
                       controller.companySize,
                       "Pilih ukuran perusahaan",
-                          () => controller.showSelectionSheet("Ukuran Perusahaan", controller.sizeList, controller.companySize),
+                      () => controller.showSelectionSheet(
+                        "Ukuran Perusahaan",
+                        controller.sizeList,
+                        controller.companySize,
+                      ),
                     ),
 
                     _buildLabel("Deskripsi Perusahaan", isRequired: true),
@@ -196,7 +262,8 @@ class RecruiterEditCompanyPage extends StatelessWidget {
 
                     _buildLabel("Alamat Kantor", isRequired: true),
                     _buildTextInput(
-                      hint: "Alamat lengkap (gedung & lantai, jalan, kelurahan, dst.)",
+                      hint:
+                          "Alamat lengkap (gedung & lantai, jalan, kelurahan, dst.)",
                       initialValue: controller.address.value,
                       onChanged: (v) => controller.address.value = v,
                     ),
@@ -217,7 +284,11 @@ class RecruiterEditCompanyPage extends StatelessWidget {
                         ),
                         child: const Text(
                           "Simpan Perubahan",
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
                         ),
                       ),
                     ),
@@ -239,7 +310,11 @@ class RecruiterEditCompanyPage extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 16, top: 8),
       child: Text(
         title,
-        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87),
+        style: const TextStyle(
+          fontSize: 18,
+          fontWeight: FontWeight.bold,
+          color: Colors.black87,
+        ),
       ),
     );
   }
@@ -251,16 +326,19 @@ class RecruiterEditCompanyPage extends StatelessWidget {
         text: TextSpan(
           text: label,
           style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
-              color: Colors.black87,
-              fontFamily: 'PlusJakartaSans'
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
+            color: Colors.black87,
+            fontFamily: 'PlusJakartaSans',
           ),
           children: [
             if (isRequired)
               const TextSpan(
                 text: " *",
-                style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  color: Colors.red,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
           ],
         ),
@@ -276,7 +354,9 @@ class RecruiterEditCompanyPage extends StatelessWidget {
     // Menggunakan controller text untuk initial value
     final textController = TextEditingController(text: initialValue);
     // Cursor ditaruh di akhir text jika ada initial value
-    textController.selection = TextSelection.fromPosition(TextPosition(offset: textController.text.length));
+    textController.selection = TextSelection.fromPosition(
+      TextPosition(offset: textController.text.length),
+    );
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -291,7 +371,10 @@ class RecruiterEditCompanyPage extends StatelessWidget {
           hintText: hint,
           hintStyle: TextStyle(color: Colors.grey[600], fontSize: 14),
           border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 14,
+          ),
           suffixIcon: const Icon(Icons.chevron_right, color: Colors.grey),
         ),
       ),
@@ -299,10 +382,10 @@ class RecruiterEditCompanyPage extends StatelessWidget {
   }
 
   Widget _buildDropdownInput(
-      RxString valueStore,
-      String hint,
-      VoidCallback onTap,
-      ) {
+    RxString valueStore,
+    String hint,
+    VoidCallback onTap,
+  ) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -315,13 +398,17 @@ class RecruiterEditCompanyPage extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Obx(() => Text(
-              valueStore.value.isEmpty ? hint : valueStore.value,
-              style: TextStyle(
-                color: valueStore.value.isEmpty ? Colors.grey[600] : Colors.black87,
-                fontSize: 14,
+            Obx(
+              () => Text(
+                valueStore.value.isEmpty ? hint : valueStore.value,
+                style: TextStyle(
+                  color: valueStore.value.isEmpty
+                      ? Colors.grey[600]
+                      : Colors.black87,
+                  fontSize: 14,
+                ),
               ),
-            )),
+            ),
             const Icon(Icons.chevron_right, color: Colors.grey),
           ],
         ),
