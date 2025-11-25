@@ -3,6 +3,8 @@ import 'package:get/get.dart';
 import 'package:wirwa/data/model.dart';
 import 'package:wirwa/data/repositories.dart';
 
+import '../chat.dart';
+
 class JobSeekerJobController extends GetxController {
   static const String ARGUMENT_ID = "id";
 
@@ -59,6 +61,17 @@ class JobSeekerJobController extends GetxController {
       "Lamaran berhasil dikirim!",
       backgroundColor: Colors.green,
       colorText: Colors.white,
+    );
+  }
+
+  void goToChat() {
+    Get.to(
+      () => ChatPage(),
+      arguments: ChatPage.createArguments(
+        authRepository.getUserId()!,
+        id,
+        false,
+      ),
     );
   }
 }
@@ -446,29 +459,37 @@ class JobSeekerJobPage extends StatelessWidget {
           ),
         ],
       ),
-      child: Obx(() {
-        final isApplied = controller.application.value != null;
-        return ElevatedButton(
-          onPressed: isApplied ? null : controller.apply,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: kPrimaryColor,
-            disabledBackgroundColor: Colors.grey.shade300,
-            padding: const EdgeInsets.symmetric(vertical: 15),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(15),
-            ),
-            elevation: 0,
+      child: Row(
+        spacing: 8,
+        children: [
+          OutlinedButton(onPressed: controller.goToChat, child: Text("Chat")),
+          Expanded(
+            child: Obx(() {
+              final isApplied = controller.application.value != null;
+              return ElevatedButton(
+                onPressed: isApplied ? null : controller.apply,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: kPrimaryColor,
+                  disabledBackgroundColor: Colors.grey.shade300,
+                  padding: const EdgeInsets.symmetric(vertical: 15),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                  elevation: 0,
+                ),
+                child: Text(
+                  isApplied ? "Sudah Dilamar" : "Lamar Sekarang",
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+              );
+            }),
           ),
-          child: Text(
-            isApplied ? "Sudah Dilamar" : "Lamar Sekarang",
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-            ),
-          ),
-        );
-      }),
+        ],
+      ),
     );
   }
 }

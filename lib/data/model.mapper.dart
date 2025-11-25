@@ -120,6 +120,8 @@ class JobApplicationStatusMapper extends EnumMapper<JobApplicationStatus> {
     switch (value) {
       case "pending":
         return JobApplicationStatus.PENDING;
+      case "selection":
+        return JobApplicationStatus.SELECTION;
       case "accepted":
         return JobApplicationStatus.ACCEPTED;
       case "rejected":
@@ -134,6 +136,8 @@ class JobApplicationStatusMapper extends EnumMapper<JobApplicationStatus> {
     switch (self) {
       case JobApplicationStatus.PENDING:
         return "pending";
+      case JobApplicationStatus.SELECTION:
+        return "selection";
       case JobApplicationStatus.ACCEPTED:
         return "accepted";
       case JobApplicationStatus.REJECTED:
@@ -552,40 +556,28 @@ class JobVacancyMapper extends ClassMapperBase<JobVacancy> {
     'jobType',
     _$jobType,
     key: r'job_type',
-    opt: true,
   );
   static String? _$workPolicy(JobVacancy v) => v.workPolicy;
   static const Field<JobVacancy, String> _f$workPolicy = Field(
     'workPolicy',
     _$workPolicy,
     key: r'work_policy',
-    opt: true,
   );
   static String? _$salary(JobVacancy v) => v.salary;
-  static const Field<JobVacancy, String> _f$salary = Field(
-    'salary',
-    _$salary,
-    opt: true,
-  );
+  static const Field<JobVacancy, String> _f$salary = Field('salary', _$salary);
   static String? _$minAge(JobVacancy v) => v.minAge;
   static const Field<JobVacancy, String> _f$minAge = Field(
     'minAge',
     _$minAge,
     key: r'min_age',
-    opt: true,
   );
   static String? _$skill(JobVacancy v) => v.skill;
-  static const Field<JobVacancy, String> _f$skill = Field(
-    'skill',
-    _$skill,
-    opt: true,
-  );
+  static const Field<JobVacancy, String> _f$skill = Field('skill', _$skill);
   static String? _$minEducation(JobVacancy v) => v.minEducation;
   static const Field<JobVacancy, String> _f$minEducation = Field(
     'minEducation',
     _$minEducation,
     key: r'min_education',
-    opt: true,
   );
 
   @override
@@ -1441,5 +1433,432 @@ class _UserJobSeekerMinimalCopyWithImpl<$R, $Out>
   UserJobSeekerMinimalCopyWith<$R2, UserJobSeekerMinimal, $Out2>
   $chain<$R2, $Out2>(Then<$Out2, $R2> t) =>
       _UserJobSeekerMinimalCopyWithImpl<$R2, $Out2>($value, $cast, t);
+}
+
+class ChatMapper extends ClassMapperBase<Chat> {
+  ChatMapper._();
+
+  static ChatMapper? _instance;
+  static ChatMapper ensureInitialized() {
+    if (_instance == null) {
+      MapperContainer.globals.use(_instance = ChatMapper._());
+    }
+    return _instance!;
+  }
+
+  @override
+  final String id = 'Chat';
+
+  static String _$id(Chat v) => v.id;
+  static const Field<Chat, String> _f$id = Field('id', _$id);
+  static DateTime _$createdAt(Chat v) => v.createdAt;
+  static const Field<Chat, DateTime> _f$createdAt = Field(
+    'createdAt',
+    _$createdAt,
+    key: r'created_at',
+  );
+  static String _$jobSeekerId(Chat v) => v.jobSeekerId;
+  static const Field<Chat, String> _f$jobSeekerId = Field(
+    'jobSeekerId',
+    _$jobSeekerId,
+    key: r'job_seeker_id',
+  );
+  static String _$jobVacancyId(Chat v) => v.jobVacancyId;
+  static const Field<Chat, String> _f$jobVacancyId = Field(
+    'jobVacancyId',
+    _$jobVacancyId,
+    key: r'job_vacancy_id',
+  );
+  static String _$message(Chat v) => v.message;
+  static const Field<Chat, String> _f$message = Field('message', _$message);
+  static bool _$isRecruiter(Chat v) => v.isRecruiter;
+  static const Field<Chat, bool> _f$isRecruiter = Field(
+    'isRecruiter',
+    _$isRecruiter,
+    key: r'is_recruiter',
+  );
+
+  @override
+  final MappableFields<Chat> fields = const {
+    #id: _f$id,
+    #createdAt: _f$createdAt,
+    #jobSeekerId: _f$jobSeekerId,
+    #jobVacancyId: _f$jobVacancyId,
+    #message: _f$message,
+    #isRecruiter: _f$isRecruiter,
+  };
+
+  static Chat _instantiate(DecodingData data) {
+    return Chat(
+      id: data.dec(_f$id),
+      createdAt: data.dec(_f$createdAt),
+      jobSeekerId: data.dec(_f$jobSeekerId),
+      jobVacancyId: data.dec(_f$jobVacancyId),
+      message: data.dec(_f$message),
+      isRecruiter: data.dec(_f$isRecruiter),
+    );
+  }
+
+  @override
+  final Function instantiate = _instantiate;
+
+  static Chat fromMap(Map<String, dynamic> map) {
+    return ensureInitialized().decodeMap<Chat>(map);
+  }
+
+  static Chat fromJson(String json) {
+    return ensureInitialized().decodeJson<Chat>(json);
+  }
+}
+
+mixin ChatMappable {
+  String toJson() {
+    return ChatMapper.ensureInitialized().encodeJson<Chat>(this as Chat);
+  }
+
+  Map<String, dynamic> toMap() {
+    return ChatMapper.ensureInitialized().encodeMap<Chat>(this as Chat);
+  }
+
+  ChatCopyWith<Chat, Chat, Chat> get copyWith =>
+      _ChatCopyWithImpl<Chat, Chat>(this as Chat, $identity, $identity);
+  @override
+  String toString() {
+    return ChatMapper.ensureInitialized().stringifyValue(this as Chat);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return ChatMapper.ensureInitialized().equalsValue(this as Chat, other);
+  }
+
+  @override
+  int get hashCode {
+    return ChatMapper.ensureInitialized().hashValue(this as Chat);
+  }
+}
+
+extension ChatValueCopy<$R, $Out> on ObjectCopyWith<$R, Chat, $Out> {
+  ChatCopyWith<$R, Chat, $Out> get $asChat =>
+      $base.as((v, t, t2) => _ChatCopyWithImpl<$R, $Out>(v, t, t2));
+}
+
+abstract class ChatCopyWith<$R, $In extends Chat, $Out>
+    implements ClassCopyWith<$R, $In, $Out> {
+  $R call({
+    String? id,
+    DateTime? createdAt,
+    String? jobSeekerId,
+    String? jobVacancyId,
+    String? message,
+    bool? isRecruiter,
+  });
+  ChatCopyWith<$R2, $In, $Out2> $chain<$R2, $Out2>(Then<$Out2, $R2> t);
+}
+
+class _ChatCopyWithImpl<$R, $Out> extends ClassCopyWithBase<$R, Chat, $Out>
+    implements ChatCopyWith<$R, Chat, $Out> {
+  _ChatCopyWithImpl(super.value, super.then, super.then2);
+
+  @override
+  late final ClassMapperBase<Chat> $mapper = ChatMapper.ensureInitialized();
+  @override
+  $R call({
+    String? id,
+    DateTime? createdAt,
+    String? jobSeekerId,
+    String? jobVacancyId,
+    String? message,
+    bool? isRecruiter,
+  }) => $apply(
+    FieldCopyWithData({
+      if (id != null) #id: id,
+      if (createdAt != null) #createdAt: createdAt,
+      if (jobSeekerId != null) #jobSeekerId: jobSeekerId,
+      if (jobVacancyId != null) #jobVacancyId: jobVacancyId,
+      if (message != null) #message: message,
+      if (isRecruiter != null) #isRecruiter: isRecruiter,
+    }),
+  );
+  @override
+  Chat $make(CopyWithData data) => Chat(
+    id: data.get(#id, or: $value.id),
+    createdAt: data.get(#createdAt, or: $value.createdAt),
+    jobSeekerId: data.get(#jobSeekerId, or: $value.jobSeekerId),
+    jobVacancyId: data.get(#jobVacancyId, or: $value.jobVacancyId),
+    message: data.get(#message, or: $value.message),
+    isRecruiter: data.get(#isRecruiter, or: $value.isRecruiter),
+  );
+
+  @override
+  ChatCopyWith<$R2, Chat, $Out2> $chain<$R2, $Out2>(Then<$Out2, $R2> t) =>
+      _ChatCopyWithImpl<$R2, $Out2>($value, $cast, t);
+}
+
+class JobVacancyMinimalMapper extends ClassMapperBase<JobVacancyMinimal> {
+  JobVacancyMinimalMapper._();
+
+  static JobVacancyMinimalMapper? _instance;
+  static JobVacancyMinimalMapper ensureInitialized() {
+    if (_instance == null) {
+      MapperContainer.globals.use(_instance = JobVacancyMinimalMapper._());
+    }
+    return _instance!;
+  }
+
+  @override
+  final String id = 'JobVacancyMinimal';
+
+  static String _$title(JobVacancyMinimal v) => v.title;
+  static const Field<JobVacancyMinimal, String> _f$title = Field(
+    'title',
+    _$title,
+  );
+
+  @override
+  final MappableFields<JobVacancyMinimal> fields = const {#title: _f$title};
+
+  static JobVacancyMinimal _instantiate(DecodingData data) {
+    return JobVacancyMinimal(title: data.dec(_f$title));
+  }
+
+  @override
+  final Function instantiate = _instantiate;
+
+  static JobVacancyMinimal fromMap(Map<String, dynamic> map) {
+    return ensureInitialized().decodeMap<JobVacancyMinimal>(map);
+  }
+
+  static JobVacancyMinimal fromJson(String json) {
+    return ensureInitialized().decodeJson<JobVacancyMinimal>(json);
+  }
+}
+
+mixin JobVacancyMinimalMappable {
+  String toJson() {
+    return JobVacancyMinimalMapper.ensureInitialized()
+        .encodeJson<JobVacancyMinimal>(this as JobVacancyMinimal);
+  }
+
+  Map<String, dynamic> toMap() {
+    return JobVacancyMinimalMapper.ensureInitialized()
+        .encodeMap<JobVacancyMinimal>(this as JobVacancyMinimal);
+  }
+
+  JobVacancyMinimalCopyWith<
+    JobVacancyMinimal,
+    JobVacancyMinimal,
+    JobVacancyMinimal
+  >
+  get copyWith =>
+      _JobVacancyMinimalCopyWithImpl<JobVacancyMinimal, JobVacancyMinimal>(
+        this as JobVacancyMinimal,
+        $identity,
+        $identity,
+      );
+  @override
+  String toString() {
+    return JobVacancyMinimalMapper.ensureInitialized().stringifyValue(
+      this as JobVacancyMinimal,
+    );
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return JobVacancyMinimalMapper.ensureInitialized().equalsValue(
+      this as JobVacancyMinimal,
+      other,
+    );
+  }
+
+  @override
+  int get hashCode {
+    return JobVacancyMinimalMapper.ensureInitialized().hashValue(
+      this as JobVacancyMinimal,
+    );
+  }
+}
+
+extension JobVacancyMinimalValueCopy<$R, $Out>
+    on ObjectCopyWith<$R, JobVacancyMinimal, $Out> {
+  JobVacancyMinimalCopyWith<$R, JobVacancyMinimal, $Out>
+  get $asJobVacancyMinimal => $base.as(
+    (v, t, t2) => _JobVacancyMinimalCopyWithImpl<$R, $Out>(v, t, t2),
+  );
+}
+
+abstract class JobVacancyMinimalCopyWith<
+  $R,
+  $In extends JobVacancyMinimal,
+  $Out
+>
+    implements ClassCopyWith<$R, $In, $Out> {
+  $R call({String? title});
+  JobVacancyMinimalCopyWith<$R2, $In, $Out2> $chain<$R2, $Out2>(
+    Then<$Out2, $R2> t,
+  );
+}
+
+class _JobVacancyMinimalCopyWithImpl<$R, $Out>
+    extends ClassCopyWithBase<$R, JobVacancyMinimal, $Out>
+    implements JobVacancyMinimalCopyWith<$R, JobVacancyMinimal, $Out> {
+  _JobVacancyMinimalCopyWithImpl(super.value, super.then, super.then2);
+
+  @override
+  late final ClassMapperBase<JobVacancyMinimal> $mapper =
+      JobVacancyMinimalMapper.ensureInitialized();
+  @override
+  $R call({String? title}) =>
+      $apply(FieldCopyWithData({if (title != null) #title: title}));
+  @override
+  JobVacancyMinimal $make(CopyWithData data) =>
+      JobVacancyMinimal(title: data.get(#title, or: $value.title));
+
+  @override
+  JobVacancyMinimalCopyWith<$R2, JobVacancyMinimal, $Out2> $chain<$R2, $Out2>(
+    Then<$Out2, $R2> t,
+  ) => _JobVacancyMinimalCopyWithImpl<$R2, $Out2>($value, $cast, t);
+}
+
+class UserRecruiterMinimalMapper extends ClassMapperBase<UserRecruiterMinimal> {
+  UserRecruiterMinimalMapper._();
+
+  static UserRecruiterMinimalMapper? _instance;
+  static UserRecruiterMinimalMapper ensureInitialized() {
+    if (_instance == null) {
+      MapperContainer.globals.use(_instance = UserRecruiterMinimalMapper._());
+    }
+    return _instance!;
+  }
+
+  @override
+  final String id = 'UserRecruiterMinimal';
+
+  static String _$name(UserRecruiterMinimal v) => v.name;
+  static const Field<UserRecruiterMinimal, String> _f$name = Field(
+    'name',
+    _$name,
+  );
+  static String? _$pictureUrl(UserRecruiterMinimal v) => v.pictureUrl;
+  static const Field<UserRecruiterMinimal, String> _f$pictureUrl = Field(
+    'pictureUrl',
+    _$pictureUrl,
+    key: r'picture_url',
+  );
+
+  @override
+  final MappableFields<UserRecruiterMinimal> fields = const {
+    #name: _f$name,
+    #pictureUrl: _f$pictureUrl,
+  };
+
+  static UserRecruiterMinimal _instantiate(DecodingData data) {
+    return UserRecruiterMinimal(
+      name: data.dec(_f$name),
+      pictureUrl: data.dec(_f$pictureUrl),
+    );
+  }
+
+  @override
+  final Function instantiate = _instantiate;
+
+  static UserRecruiterMinimal fromMap(Map<String, dynamic> map) {
+    return ensureInitialized().decodeMap<UserRecruiterMinimal>(map);
+  }
+
+  static UserRecruiterMinimal fromJson(String json) {
+    return ensureInitialized().decodeJson<UserRecruiterMinimal>(json);
+  }
+}
+
+mixin UserRecruiterMinimalMappable {
+  String toJson() {
+    return UserRecruiterMinimalMapper.ensureInitialized()
+        .encodeJson<UserRecruiterMinimal>(this as UserRecruiterMinimal);
+  }
+
+  Map<String, dynamic> toMap() {
+    return UserRecruiterMinimalMapper.ensureInitialized()
+        .encodeMap<UserRecruiterMinimal>(this as UserRecruiterMinimal);
+  }
+
+  UserRecruiterMinimalCopyWith<
+    UserRecruiterMinimal,
+    UserRecruiterMinimal,
+    UserRecruiterMinimal
+  >
+  get copyWith =>
+      _UserRecruiterMinimalCopyWithImpl<
+        UserRecruiterMinimal,
+        UserRecruiterMinimal
+      >(this as UserRecruiterMinimal, $identity, $identity);
+  @override
+  String toString() {
+    return UserRecruiterMinimalMapper.ensureInitialized().stringifyValue(
+      this as UserRecruiterMinimal,
+    );
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return UserRecruiterMinimalMapper.ensureInitialized().equalsValue(
+      this as UserRecruiterMinimal,
+      other,
+    );
+  }
+
+  @override
+  int get hashCode {
+    return UserRecruiterMinimalMapper.ensureInitialized().hashValue(
+      this as UserRecruiterMinimal,
+    );
+  }
+}
+
+extension UserRecruiterMinimalValueCopy<$R, $Out>
+    on ObjectCopyWith<$R, UserRecruiterMinimal, $Out> {
+  UserRecruiterMinimalCopyWith<$R, UserRecruiterMinimal, $Out>
+  get $asUserRecruiterMinimal => $base.as(
+    (v, t, t2) => _UserRecruiterMinimalCopyWithImpl<$R, $Out>(v, t, t2),
+  );
+}
+
+abstract class UserRecruiterMinimalCopyWith<
+  $R,
+  $In extends UserRecruiterMinimal,
+  $Out
+>
+    implements ClassCopyWith<$R, $In, $Out> {
+  $R call({String? name, String? pictureUrl});
+  UserRecruiterMinimalCopyWith<$R2, $In, $Out2> $chain<$R2, $Out2>(
+    Then<$Out2, $R2> t,
+  );
+}
+
+class _UserRecruiterMinimalCopyWithImpl<$R, $Out>
+    extends ClassCopyWithBase<$R, UserRecruiterMinimal, $Out>
+    implements UserRecruiterMinimalCopyWith<$R, UserRecruiterMinimal, $Out> {
+  _UserRecruiterMinimalCopyWithImpl(super.value, super.then, super.then2);
+
+  @override
+  late final ClassMapperBase<UserRecruiterMinimal> $mapper =
+      UserRecruiterMinimalMapper.ensureInitialized();
+  @override
+  $R call({String? name, Object? pictureUrl = $none}) => $apply(
+    FieldCopyWithData({
+      if (name != null) #name: name,
+      if (pictureUrl != $none) #pictureUrl: pictureUrl,
+    }),
+  );
+  @override
+  UserRecruiterMinimal $make(CopyWithData data) => UserRecruiterMinimal(
+    name: data.get(#name, or: $value.name),
+    pictureUrl: data.get(#pictureUrl, or: $value.pictureUrl),
+  );
+
+  @override
+  UserRecruiterMinimalCopyWith<$R2, UserRecruiterMinimal, $Out2>
+  $chain<$R2, $Out2>(Then<$Out2, $R2> t) =>
+      _UserRecruiterMinimalCopyWithImpl<$R2, $Out2>($value, $cast, t);
 }
 

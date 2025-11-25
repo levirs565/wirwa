@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:wirwa/screen/job_seeker/chat_list.dart';
 import 'package:wirwa/screen/job_seeker/profile.dart';
 import 'package:wirwa/screen/job_seeker/job_list.dart';
 import 'package:wirwa/screen/job_seeker/workshop_list.dart';
@@ -14,6 +15,7 @@ class JobSeekerPage extends StatelessWidget {
   final List<Widget> pages = [
     JobSeekerJobListPage(),
     JobSeekerWorkshopListPage(),
+    JobSeekerChatListPage(),
     JobSeekerProfilePage(),
   ];
 
@@ -46,7 +48,8 @@ class JobSeekerPage extends StatelessWidget {
                 'Workshop',
                 1,
               ),
-              _buildNavItem(Icons.person, Icons.person_outline, 'Profil', 2),
+              _buildNavItem(Icons.chat_bubble, Icons.chat_bubble_outline, 'Chat', 2),
+              _buildNavItem(Icons.person, Icons.person_outline, 'Profil', 3),
             ],
           ),
         ),

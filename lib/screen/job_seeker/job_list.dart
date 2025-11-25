@@ -25,6 +25,7 @@ class JobSeekerJobListController extends GetxController {
     "Freelance",
   ];
   final RxInt selectedCategoryIndex = 0.obs;
+  String textFilter = "";
 
   @override
   void onReady() {
@@ -42,14 +43,20 @@ class JobSeekerJobListController extends GetxController {
   }
 
   void refresh() {
-    jobVacancyRepository.getAll().then((value) {
-      jobs.clear();
-      jobs.insertAll(0, value);
+    jobVacancyRepository
+        .getAll(
+          textFilter: textFilter,
+          jobTypeFilter: selectedCategoryIndex.value == 0
+              ? null
+              : categories[selectedCategoryIndex.value],
+        )
+        .then((value) {
+          jobs.clear();
+          jobs.insertAll(0, value);
 
-      // Fetch recruiter data dan status aplikasi untuk setiap job
+      // Fetch recruiter data untuk setiap job
       for (var job in value) {
         _fetchRecruiter(job.recruiterId);
-        _checkApplicationStatus(job.id);
       }
     });
   }
@@ -106,33 +113,12 @@ class JobSeekerJobListController extends GetxController {
 
   void changeCategory(int index) {
     selectedCategoryIndex.value = index;
+    refresh();
   }
 
-  // Filter jobs berdasarkan kategori yang dipilih
-  List<JobVacancy> get filteredJobs {
-    if (selectedCategoryIndex.value == 0) {
-      return jobs; // Semua
-    }
-
-    final category = categories[selectedCategoryIndex.value];
-    return jobs.where((job) {
-      final jobType = job.jobType ?? '';
-
-      if (category == "Penuh Waktu") {
-        return jobType.toLowerCase().contains('penuh waktu') ||
-            jobType.toLowerCase().contains('full time') ||
-            jobType.toLowerCase().contains('full-time');
-      } else if (category == "Paruh Waktu") {
-        return jobType.toLowerCase().contains('paruh waktu') ||
-            jobType.toLowerCase().contains('part time') ||
-            jobType.toLowerCase().contains('part-time');
-      } else if (category == "Freelance") {
-        return jobType.toLowerCase().contains('freelance') ||
-            jobType.toLowerCase().contains('kontrak');
-      }
-
-      return false;
-    }).toList();
+  void setFilter(String filter) {
+    textFilter = filter;
+    refresh();
   }
 }
 
@@ -162,31 +148,24 @@ class JobSeekerJobListPage extends StatelessWidget {
               _buildCategoryFilter(),
               const SizedBox(height: 20),
               // List Job
-              Obx(() {
-                final displayJobs = controller.filteredJobs;
-
-                if (displayJobs.isEmpty) {
-                  return Center(
-                    child: Padding(
-                      padding: EdgeInsets.all(20),
-                      child: Text(
-                        controller.jobs.isEmpty
-                            ? "Belum ada lowongan"
-                            : "Tidak ada lowongan untuk kategori ini",
+              Obx(
+                () => controller.jobs.isEmpty
+                    ? Center(
+                        child: Padding(
+                          padding: EdgeInsets.all(20),
+                          child: Text("Belum ada lowongan"),
+                        ),
+                      )
+                    : ListView.builder(
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        // Agar scroll ikut parent
+                        itemCount: controller.jobs.length,
+                        itemBuilder: (context, index) =>
+                            _buildJobCard(context, controller.jobs[index]),
                       ),
-                    ),
-                  );
-                }
-
-                return ListView.builder(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: displayJobs.length,
-                  itemBuilder: (context, index) =>
-                      _buildJobCard(context, displayJobs[index]),
-                );
-              }),
+              ),
               const SizedBox(height: 20),
             ],
           ),
@@ -307,9 +286,10 @@ class JobSeekerJobListPage extends StatelessWidget {
                     ),
                   ],
                 ),
-                child: const TextField(
+                child: TextField(
                   textAlignVertical: TextAlignVertical.center,
-                  decoration: InputDecoration(
+                  onChanged: controller.setFilter,
+              decoration: InputDecoration(
                     hintText: "Cari Pekerjaan",
                     hintStyle: TextStyle(
                       color: Color(0xFF8A8A8A),

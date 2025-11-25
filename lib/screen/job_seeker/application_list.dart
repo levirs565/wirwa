@@ -7,13 +7,21 @@ import 'package:wirwa/screen/job_seeker/job.dart';
 class JobSeekerApplicationListController extends GetxController {
   final AuthRepository authRepository = Get.find();
   final JobApplicationRepository jobApplicationRepository = Get.find();
-  
-  final RxList<JobApplicationWithVacancy> jobs = <JobApplicationWithVacancy>[].obs;
-  
+
+  final List<JobApplicationWithVacancy> jobsRaw = [];
+  final RxList<JobApplicationWithVacancy> jobs =
+      <JobApplicationWithVacancy>[].obs;
+
   final RxInt selectedFilterIndex = 0.obs;
 
   final List<String> filters = ["Dilamar", "Seleksi", "Direkrut", "Belum Siap"];
-  final List<int> filterCounts = [1, 0, 0, 2];
+  final List<JobApplicationStatus> filtersStatus = [
+    JobApplicationStatus.PENDING,
+    JobApplicationStatus.SELECTION,
+    JobApplicationStatus.ACCEPTED,
+    JobApplicationStatus.REJECTED,
+  ];
+  final RxList<int> filterCounts = RxList([0, 0, 0, 0]);
 
   @override
   void onReady() {
@@ -25,19 +33,37 @@ class JobSeekerApplicationListController extends GetxController {
     jobApplicationRepository
         .getAllWithVacancy(authRepository.getUserId()!)
         .then((value) {
-      jobs.clear();
-      jobs.insertAll(0, value);
+      for (var entry in filtersStatus
+          .asMap()
+          .entries) {
+        filterCounts[entry.key] = value
+            .where(
+              (data) =>
+          data.application.status == entry.value,
+        )
+            .length;
+      }
+      jobsRaw.clear();
+      jobsRaw.insertAll(0, value);
+      refreshFilter();
     });
+  }
+
+  void refreshFilter() {
+    jobs.assignAll(
+        jobsRaw.where((data) =>
+        data.application.status == filtersStatus[selectedFilterIndex.value])
+    );
   }
 
   void changeFilter(int index) {
     selectedFilterIndex.value = index;
-    refreshData(); 
+    refreshFilter();
   }
 
   void toDetail(String id) {
     Get.to(
-      () => JobSeekerJobPage(),
+          () => JobSeekerJobPage(),
       arguments: JobSeekerJobPage.createArguments(id),
     );
   }
@@ -66,25 +92,29 @@ class JobSeekerApplicationListPage extends StatelessWidget {
         title: const Text(
           "Riwayat Lowongan",
           style: TextStyle(
-            color: Colors.black87, 
+            color: Colors.black87,
             fontWeight: FontWeight.bold,
-            fontSize: 18
+            fontSize: 18,
           ),
         ),
         centerTitle: true,
       ),
       body: Column(
         children: [
-         
           _buildFilterSection(),
-          
+
           const SizedBox(height: 10),
 
-          
           Expanded(
             child: Obx(
-              () => controller.jobs.isEmpty 
-                  ? Center(child: Text("Belum ada riwayat", style: TextStyle(color: textGrey))) 
+                  () =>
+              controller.jobs.isEmpty
+                  ? Center(
+                child: Text(
+                  "Belum ada riwayat",
+                  style: TextStyle(color: textGrey),
+                ),
+              )
                   : _list(context),
             ),
           ),
@@ -107,7 +137,10 @@ class JobSeekerApplicationListPage extends StatelessWidget {
                 onTap: () => controller.changeFilter(index),
                 borderRadius: BorderRadius.circular(12),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
                   decoration: BoxDecoration(
                     color: isSelected ? primaryColor : Colors.white,
                     borderRadius: BorderRadius.circular(12),
@@ -128,20 +161,25 @@ class JobSeekerApplicationListPage extends StatelessWidget {
                       const SizedBox(width: 6),
                       // Badge count
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 2,
+                        ),
                         decoration: BoxDecoration(
-                          color: isSelected ? Colors.white.withOpacity(0.3) : const Color(0xFFFFF0EE),
+                          color: isSelected
+                              ? Colors.white.withOpacity(0.3)
+                              : const Color(0xFFFFF0EE),
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(
-                          "${controller.filterCounts[index]}", 
+                          "${controller.filterCounts[index]}",
                           style: TextStyle(
                             color: isSelected ? Colors.white : primaryColor,
                             fontSize: 12,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                      )
+                      ),
                     ],
                   ),
                 ),
@@ -195,11 +233,11 @@ class JobSeekerApplicationListPage extends StatelessWidget {
                       color: Colors.grey[100],
                       borderRadius: BorderRadius.circular(12),
                       image: const DecorationImage(
-                        image: NetworkImage("https://via.placeholder.com/150"), 
-                        fit: BoxFit.cover
-                      )
+                        image: NetworkImage("https://via.placeholder.com/150"),
+                        fit: BoxFit.cover,
+                      ),
                     ),
-                    child: const Icon(Icons.business, color: Colors.grey), 
+                    child: const Icon(Icons.business, color: Colors.grey),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
@@ -218,24 +256,27 @@ class JobSeekerApplicationListPage extends StatelessWidget {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          "PT Pisang Kemul", 
-                          style: TextStyle(
-                            color: textGrey,
-                            fontSize: 13,
-                          ),
+                          "PT Pisang Kemul",
+                          style: TextStyle(color: textGrey, fontSize: 13),
                         ),
                       ],
                     ),
                   ),
-               
+
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 4,
+                    ),
                     decoration: BoxDecoration(
                       color: primaryColor,
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
-                      job.application.status.toString().split('.').last, 
+                      job.application.status
+                          .toString()
+                          .split('.')
+                          .last,
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 11,
@@ -245,7 +286,7 @@ class JobSeekerApplicationListPage extends StatelessWidget {
                   ),
                 ],
               ),
-              
+
               const SizedBox(height: 16),
 
               Wrap(
@@ -259,26 +300,30 @@ class JobSeekerApplicationListPage extends StatelessWidget {
               ),
 
               const SizedBox(height: 16),
-              
+
               Row(
                 children: [
-                  Icon(Icons.location_on_outlined, size: 18, color: primaryColor),
+                  Icon(
+                    Icons.location_on_outlined,
+                    size: 18,
+                    color: primaryColor,
+                  ),
                   const SizedBox(width: 4),
                   Text(
-                    "Remote", 
+                    "Remote",
                     style: TextStyle(color: textGrey, fontSize: 13),
                   ),
                   const Spacer(),
                   Text(
-                    "Rp 2 jt - Rp 4 jt /bulan", 
+                    "Rp 2 jt - Rp 4 jt /bulan",
                     style: TextStyle(
-                      color: textGrey, 
+                      color: textGrey,
                       fontSize: 13,
-                      fontWeight: FontWeight.w500
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ],
-              )
+              ),
             ],
           ),
         ),
@@ -293,10 +338,7 @@ class JobSeekerApplicationListPage extends StatelessWidget {
         border: Border.all(color: primaryColor.withOpacity(0.5)),
         borderRadius: BorderRadius.circular(8),
       ),
-      child: Text(
-        text,
-        style: TextStyle(color: primaryColor, fontSize: 11),
-      ),
+      child: Text(text, style: TextStyle(color: primaryColor, fontSize: 11)),
     );
   }
 }

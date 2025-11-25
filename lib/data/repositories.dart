@@ -43,7 +43,11 @@ abstract interface class JobVacancyRepository {
 
   Future<void> delete(String id);
 
-  Future<List<JobVacancy>> getAll({String? recruiterIdFilter});
+  Future<List<JobVacancy>> getAll({
+    String? recruiterIdFilter,
+    String? textFilter,
+    String? jobTypeFilter,
+  });
 
   Future<List<JobVacancy>> getAdvertised();
 
@@ -76,4 +80,17 @@ abstract interface class WorkshopRepository {
   Future<List<Workshop>> getByRecruiterId(String recruiterId);
 
   Future<List<WorkshopWithRecruiter>> getAll();
+}
+
+abstract interface class ChatRepository {
+  Future<void> add(Chat chat);
+
+  Future<List<JobSeekerMinimalWithChat>> getByRecruiterId(String recruiterId);
+
+  Future<List<RecruiterMinimalWithChat>> getByJobSeekerId(String jobSeekerId);
+
+  Future<List<Chat>> getConversations(
+    String vacancyId,
+    String jobSeekerId,
+  );
 }

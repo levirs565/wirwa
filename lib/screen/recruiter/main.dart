@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:wirwa/screen/recruiter/chat_list.dart';
 import 'package:wirwa/screen/recruiter/job_list.dart';
 import 'package:wirwa/screen/recruiter/profile.dart';
 
@@ -17,7 +18,7 @@ class RecruiterPage extends StatelessWidget {
     // List halaman tidak boleh const karena RecruiterJobListPage punya logic
     final List<Widget> pages = [
       RecruiterJobListPage(),
-      const Scaffold(body: Center(child: Text("Halaman Chat"))),
+      RecruiterChatListPage(),
       RecruiterProfilePage(),
     ];
 

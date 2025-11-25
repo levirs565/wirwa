@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:wirwa/data/datasource/auth.dart';
+import 'package:wirwa/data/datasource/chat.dart';
 import 'package:wirwa/data/datasource/job_vacancy.dart';
 import 'package:wirwa/data/datasource/user.dart';
 import 'package:wirwa/data/key.dart';
@@ -42,6 +43,7 @@ Future<void> main() async {
   Get.put<JobVacancyRepository>(JobVacancyDataSource(), permanent: true);
   Get.put<JobApplicationRepository>(JobApplicationDataSource(), permanent: true);
   Get.put<WorkshopRepository>(WorkshopDataSource(), permanent: true);
+  Get.put<ChatRepository>(ChatDataSource(), permanent: true);
 
   Get.put(WirwaController(), permanent: true);
 
