@@ -17,12 +17,14 @@ class JobSeekerJobListController extends GetxController {
   final RxMap<String, JobApplication?> applications =
       <String, JobApplication?>{}.obs;
 
-  final List<String> categories = [
+  // Kategori dinamis - akan diupdate berdasarkan data dari database
+  final RxList<String> categories = <String>[
     "Semua",
     "Penuh Waktu",
     "Paruh Waktu",
-    "Freelance",
-  ];
+    "Kontrak",
+    "Magang",
+  ].obs;
   final RxInt selectedCategoryIndex = 0.obs;
   String textFilter = "";
 
@@ -94,6 +96,8 @@ class JobSeekerJobListController extends GetxController {
           jobs.clear();
           jobs.insertAll(0, value);
 
+          _updateCategories(value);
+
           for (var job in value) {
             _fetchRecruiter(job.recruiterId);
           }
@@ -102,6 +106,46 @@ class JobSeekerJobListController extends GetxController {
           print("Error loading jobs: $e");
           print("Stack trace: $stackTrace");
         });
+  }
+
+  void _updateCategories(List<JobVacancy> jobList) {
+    final Set<String> uniqueJobTypes = {};
+
+    for (var job in jobList) {
+      if (job.jobType != null && job.jobType!.isNotEmpty) {
+        uniqueJobTypes.add(job.jobType!);
+      }
+    }
+
+    // Jika ada jobType dari database, merge dengan default
+    if (uniqueJobTypes.isNotEmpty) {
+      // Kategori default sesuai dengan recruiter form
+      final defaultCategories = [
+        "Penuh Waktu",
+        "Paruh Waktu",
+        "Kontrak",
+        "Magang",
+      ];
+
+      // Merge: tambahkan jobType dari database yang belum ada di default
+      for (var jobType in uniqueJobTypes) {
+        if (!defaultCategories.contains(jobType)) {
+          defaultCategories.add(jobType);
+        }
+      }
+
+      // Rebuild dengan "Semua" di depan dan sort sisanya
+      defaultCategories.sort();
+      final newCategories = ["Semua", ...defaultCategories];
+
+      // Update hanya jika berbeda
+      if (categories.length != newCategories.length ||
+          !categories.every((element) => newCategories.contains(element))) {
+        categories.clear();
+        categories.addAll(newCategories);
+        print("Updated categories: $newCategories");
+      }
+    }
   }
 
   Future<void> _fetchRecruiter(String recruiterId) async {
@@ -520,14 +564,17 @@ class JobSeekerJobListPage extends StatelessWidget {
             ),
             const SizedBox(height: 16),
 
-            // Tags (Penuh Waktu, F&B, dll)
-            Row(
+            // Tags - Dinamis dari data job
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
               children: [
-                _buildTag("Penuh Waktu"),
-                const SizedBox(width: 8),
-                _buildTag("F&B"),
-                const SizedBox(width: 8),
-                _buildTag("Entry Level"),
+                if (job.jobType != null && job.jobType!.isNotEmpty)
+                  _buildTag(job.jobType!),
+                if (job.workPolicy != null && job.workPolicy!.isNotEmpty)
+                  _buildTag(job.workPolicy!),
+                if (job.minEducation != null && job.minEducation!.isNotEmpty)
+                  _buildTag(job.minEducation!),
               ],
             ),
             const SizedBox(height: 16),
