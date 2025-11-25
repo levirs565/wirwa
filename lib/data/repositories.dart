@@ -73,7 +73,7 @@ abstract interface class JobApplicationRepository {
 }
 
 abstract interface class WorkshopRepository {
-  Future<void> add(Workshop workshop);
+  Future<String> add(Workshop workshop);
 
   Future<void> update(Workshop workshop);
 

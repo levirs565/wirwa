@@ -8,11 +8,12 @@ class WorkshopDataSource implements WorkshopRepository {
   final SupabaseClient client = Get.find();
 
   @override
-  Future<void> add(Workshop workshop) async {
+  Future<String> add(Workshop workshop) async {
     final data = workshop.toMap();
     data.remove("id");
     data.remove("created_at");
-    await client.from("workshop").insert(data);
+    final created = await client.from("workshop").insert(data).select();
+    return created.first["id"];
   }
 
   @override

@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -143,19 +144,6 @@ class RecruiterNewWorkshopController extends GetxController {
     try {
       isSubmitting.value = true;
 
-      // Upload gambar dulu untuk mendapatkan unique ID
-      final timestamp = DateTime.now().millisecondsSinceEpoch;
-      final tempId = "temp_$timestamp";
-
-      String? imageUrl;
-      if (selectedImage.value != null) {
-        imageUrl = await workshopRepository.uploadWorkshopImage(
-          tempId,
-          selectedImage.value!,
-        );
-      }
-
-      // Buat workshop dengan imageUrl yang sudah diupload
       final newWorkshop = Workshop(
         id: "",
         createdAt: DateTime.now(),
@@ -163,10 +151,22 @@ class RecruiterNewWorkshopController extends GetxController {
         description: description.value.trim(),
         formUrl: formUrl.value.trim(),
         recruiterId: authRepository.getUserId()!,
-        imageUrl: imageUrl,
+      );
+      final id = await workshopRepository.add(newWorkshop);
+
+      String? imageUrl;
+      if (selectedImage.value != null) {
+        imageUrl = await workshopRepository.uploadWorkshopImage(
+          id,
+          selectedImage.value!,
+        );
+      }
+
+      await workshopRepository.update(
+        newWorkshop.copyWith(id: id, imageUrl: imageUrl),
       );
 
-      await workshopRepository.add(newWorkshop);
+      Get.back(result: true);
 
       Get.snackbar(
         "Berhasil",
@@ -175,8 +175,6 @@ class RecruiterNewWorkshopController extends GetxController {
         colorText: Colors.green.shade900,
         duration: const Duration(seconds: 2),
       );
-
-      Get.back(result: true);
     } catch (e) {
       print("Error creating workshop: $e");
       Get.snackbar(
