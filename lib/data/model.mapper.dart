@@ -803,6 +803,13 @@ class WorkshopMapper extends ClassMapperBase<Workshop> {
     _$recruiterId,
     key: r'recruiter_id',
   );
+  static String? _$imageUrl(Workshop v) => v.imageUrl;
+  static const Field<Workshop, String> _f$imageUrl = Field(
+    'imageUrl',
+    _$imageUrl,
+    key: r'image_url',
+    opt: true,
+  );
 
   @override
   final MappableFields<Workshop> fields = const {
@@ -812,6 +819,7 @@ class WorkshopMapper extends ClassMapperBase<Workshop> {
     #description: _f$description,
     #formUrl: _f$formUrl,
     #recruiterId: _f$recruiterId,
+    #imageUrl: _f$imageUrl,
   };
 
   static Workshop _instantiate(DecodingData data) {
@@ -822,6 +830,7 @@ class WorkshopMapper extends ClassMapperBase<Workshop> {
       description: data.dec(_f$description),
       formUrl: data.dec(_f$formUrl),
       recruiterId: data.dec(_f$recruiterId),
+      imageUrl: data.dec(_f$imageUrl),
     );
   }
 
@@ -889,6 +898,7 @@ abstract class WorkshopCopyWith<$R, $In extends Workshop, $Out>
     String? description,
     String? formUrl,
     String? recruiterId,
+    String? imageUrl,
   });
   WorkshopCopyWith<$R2, $In, $Out2> $chain<$R2, $Out2>(Then<$Out2, $R2> t);
 }
@@ -909,6 +919,7 @@ class _WorkshopCopyWithImpl<$R, $Out>
     String? description,
     String? formUrl,
     String? recruiterId,
+    Object? imageUrl = $none,
   }) => $apply(
     FieldCopyWithData({
       if (id != null) #id: id,
@@ -917,6 +928,7 @@ class _WorkshopCopyWithImpl<$R, $Out>
       if (description != null) #description: description,
       if (formUrl != null) #formUrl: formUrl,
       if (recruiterId != null) #recruiterId: recruiterId,
+      if (imageUrl != $none) #imageUrl: imageUrl,
     }),
   );
   @override
@@ -927,6 +939,7 @@ class _WorkshopCopyWithImpl<$R, $Out>
     description: data.get(#description, or: $value.description),
     formUrl: data.get(#formUrl, or: $value.formUrl),
     recruiterId: data.get(#recruiterId, or: $value.recruiterId),
+    imageUrl: data.get(#imageUrl, or: $value.imageUrl),
   );
 
   @override

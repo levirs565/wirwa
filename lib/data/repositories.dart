@@ -75,11 +75,17 @@ abstract interface class JobApplicationRepository {
 abstract interface class WorkshopRepository {
   Future<void> add(Workshop workshop);
 
+  Future<void> update(Workshop workshop);
+
+  Future<void> delete(String id);
+
   Future<Workshop?> getById(String id);
 
   Future<List<Workshop>> getByRecruiterId(String recruiterId);
 
   Future<List<WorkshopWithRecruiter>> getAll();
+
+  Future<String> uploadWorkshopImage(String workshopId, File file);
 }
 
 abstract interface class ChatRepository {
@@ -89,8 +95,5 @@ abstract interface class ChatRepository {
 
   Future<List<RecruiterMinimalWithChat>> getByJobSeekerId(String jobSeekerId);
 
-  Future<List<Chat>> getConversations(
-    String vacancyId,
-    String jobSeekerId,
-  );
+  Future<List<Chat>> getConversations(String vacancyId, String jobSeekerId);
 }

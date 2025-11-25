@@ -117,9 +117,7 @@ class JobSeekerJobListController extends GetxController {
       }
     }
 
-    // Jika ada jobType dari database, merge dengan default
     if (uniqueJobTypes.isNotEmpty) {
-      // Kategori default sesuai dengan recruiter form
       final defaultCategories = [
         "Penuh Waktu",
         "Paruh Waktu",
@@ -127,18 +125,15 @@ class JobSeekerJobListController extends GetxController {
         "Magang",
       ];
 
-      // Merge: tambahkan jobType dari database yang belum ada di default
       for (var jobType in uniqueJobTypes) {
         if (!defaultCategories.contains(jobType)) {
           defaultCategories.add(jobType);
         }
       }
 
-      // Rebuild dengan "Semua" di depan dan sort sisanya
       defaultCategories.sort();
       final newCategories = ["Semua", ...defaultCategories];
 
-      // Update hanya jika berbeda
       if (categories.length != newCategories.length ||
           !categories.every((element) => newCategories.contains(element))) {
         categories.clear();
@@ -161,7 +156,6 @@ class JobSeekerJobListController extends GetxController {
     }
   }
 
-  // Method untuk cek apakah user sudah melamar job ini
   Future<void> _checkApplicationStatus(String jobId) async {
     final userId = authRepository.getUserId();
     if (userId == null) {
@@ -183,32 +177,27 @@ class JobSeekerJobListController extends GetxController {
     }
   }
 
-  // Check apakah user sudah melamar
   bool hasApplied(String jobId) {
     return applications[jobId] != null;
   }
 
-  // Method untuk refresh status aplikasi setelah kembali dari detail
   Future<void> refreshApplicationStatus() async {
     print("Refreshing application statuses after navigation");
     await _loadApplicationStatuses();
   }
 
   void toDetail(String id) async {
-    // Navigate ke detail page
     await Get.to(
       () => JobSeekerJobPage(),
       arguments: JobSeekerJobPage.createArguments(id),
     );
 
-    // Setelah kembali dari detail page, refresh status aplikasi
     await refreshApplicationStatus();
   }
 
   void changeCategory(int index) {
     selectedCategoryIndex.value = index;
     refresh();
-    // Reload status setelah filter berubah
     Future.delayed(Duration(milliseconds: 300), () {
       _loadApplicationStatuses();
     });
@@ -234,7 +223,6 @@ class JobSeekerJobListPage extends StatelessWidget {
     return Get.find<JobSeekerJobListController>();
   }
 
-  // Definisi Warna sesuai gambar
   final Color kBackgroundColor = const Color(0xFFFFF5F7);
   final Color kPrimaryColor = const Color(0xFFFF8E88);
   final Color kTextColor = const Color(0xFF1F1F1F);

@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:wirwa/screen/recruiter/chat_list.dart';
 import 'package:wirwa/screen/recruiter/job_list.dart';
 import 'package:wirwa/screen/recruiter/profile.dart';
+import 'package:wirwa/screen/recruiter/workshop_list.dart';
 
 class RecruiterController extends GetxController {
   final RxInt activePage = 0.obs;
@@ -15,9 +16,9 @@ class RecruiterPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // List halaman tidak boleh const karena RecruiterJobListPage punya logic
     final List<Widget> pages = [
       RecruiterJobListPage(),
+      RecruiterWorkshopListPage(),
       RecruiterChatListPage(),
       RecruiterProfilePage(),
     ];
@@ -25,7 +26,7 @@ class RecruiterPage extends StatelessWidget {
     return Scaffold(
       body: Obx(() => pages[controller.activePage.value]),
       bottomNavigationBar: Obx(
-            () => NavigationBarTheme(
+        () => NavigationBarTheme(
           data: NavigationBarThemeData(
             labelTextStyle: MaterialStateProperty.all(
               const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
@@ -37,11 +38,28 @@ class RecruiterPage extends StatelessWidget {
             backgroundColor: Colors.white,
             indicatorColor: Colors.transparent,
             selectedIndex: controller.activePage.value,
-            onDestinationSelected: (index) => controller.activePage.value = index,
+            onDestinationSelected: (index) =>
+                controller.activePage.value = index,
             destinations: [
-              _buildNavItem(Icons.home_filled, Icons.home_outlined, 'Beranda', 0),
-              _buildNavItem(Icons.chat_bubble, Icons.chat_bubble_outline, 'Chat', 1),
-              _buildNavItem(Icons.person, Icons.person_outline, 'Profil', 2),
+              _buildNavItem(
+                Icons.home_filled,
+                Icons.home_outlined,
+                'Beranda',
+                0,
+              ),
+              _buildNavItem(
+                Icons.library_books,
+                Icons.library_books_outlined,
+                'Workshop',
+                1,
+              ),
+              _buildNavItem(
+                Icons.chat_bubble,
+                Icons.chat_bubble_outline,
+                'Chat',
+                2,
+              ),
+              _buildNavItem(Icons.person, Icons.person_outline, 'Profil', 3),
             ],
           ),
         ),
@@ -49,7 +67,12 @@ class RecruiterPage extends StatelessWidget {
     );
   }
 
-  NavigationDestination _buildNavItem(IconData activeIcon, IconData icon, String label, int index) {
+  NavigationDestination _buildNavItem(
+    IconData activeIcon,
+    IconData icon,
+    String label,
+    int index,
+  ) {
     final isSelected = controller.activePage.value == index;
     return NavigationDestination(
       icon: Icon(

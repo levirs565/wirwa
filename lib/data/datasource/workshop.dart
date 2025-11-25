@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:get/get.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:wirwa/data/model.dart';
@@ -12,6 +13,18 @@ class WorkshopDataSource implements WorkshopRepository {
     data.remove("id");
     data.remove("created_at");
     await client.from("workshop").insert(data);
+  }
+
+  @override
+  Future<void> update(Workshop workshop) async {
+    final data = workshop.toMap();
+    data.remove("created_at");
+    await client.from("workshop").update(data).eq("id", workshop.id);
+  }
+
+  @override
+  Future<void> delete(String id) async {
+    await client.from("workshop").delete().eq("id", id);
   }
 
   @override
@@ -45,5 +58,15 @@ class WorkshopDataSource implements WorkshopRepository {
         .maybeSingle();
     if (data == null) return null;
     return WorkshopMapper.fromMap(data);
+  }
+
+  @override
+  Future<String> uploadWorkshopImage(String workshopId, File file) async {
+    final path = "workshop/$workshopId";
+    await client.storage
+        .from("files")
+        .upload(path, file, fileOptions: const FileOptions(upsert: true));
+    final data = client.storage.from("files").getPublicUrl(path);
+    return data;
   }
 }

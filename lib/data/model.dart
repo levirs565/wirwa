@@ -89,6 +89,7 @@ class Workshop with WorkshopMappable {
   final String id;
   final DateTime createdAt;
   final String title, description, formUrl, recruiterId;
+  final String? imageUrl;
 
   Workshop({
     required this.id,
@@ -97,6 +98,7 @@ class Workshop with WorkshopMappable {
     required this.description,
     required this.formUrl,
     required this.recruiterId,
+    this.imageUrl,
   });
 }
 
@@ -119,7 +121,6 @@ class JobApplication with JobApplicationMappable {
   final JobApplicationStatus status;
   final String jobVacancyId, jobSeekerId;
 
-  // TODO: CV?
 
   JobApplication({
     required this.id,
