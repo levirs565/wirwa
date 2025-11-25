@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:get/get.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:wirwa/data/model.dart';
@@ -43,8 +45,9 @@ class ChatDataSource implements ChatRepository {
   ) async {
     final data = await client
         .from("chat_latest")
-        .select("*,job_vacancy(title),user_job_seeker(name,picture_url)")
+        .select("*,job_vacancy!inner(title),user_job_seeker(name,picture_url)")
         .eq("job_vacancy.recruiter_id", recruiterId);
+    log(data.toString());
     return data
         .map(
           (raw) => JobSeekerMinimalWithChat(
