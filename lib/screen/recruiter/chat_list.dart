@@ -23,15 +23,10 @@ class RecruiterChatListController extends GetxController {
     chats.assignAll(data);
   }
 
-  void toChat(String jobSeekerId) {
+  void toChat(String vacancyId, String jobSeekerId) {
     Get.to(
       () => ChatPage(),
-      arguments: ChatPage.createArguments(
-        jobSeekerId,
-        authRepository.getUserId()!,
-        null,
-        true,
-      ),
+      arguments: ChatPage.createArguments(jobSeekerId, vacancyId, true),
     );
   }
 }
@@ -52,7 +47,8 @@ class RecruiterChatListPage extends StatelessWidget {
 
   Widget _listTile(BuildContext context, JobSeekerMinimalWithChat data) {
     return InkWell(
-      onTap: () => controller.toChat(data.chat.jobSeekerId),
+      onTap: () =>
+          controller.toChat(data.chat.jobVacancyId, data.chat.jobSeekerId),
       borderRadius: BorderRadius.circular(12),
       child: Container(
         padding: const EdgeInsets.all(16),
@@ -92,7 +88,7 @@ class RecruiterChatListPage extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    data.seeker.name,
+                    "${data.vacancy.title} (${data.seeker.name})",
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,

@@ -10,31 +10,30 @@ import 'package:wirwa/screen/recruiter/job.dart';
 
 class ChatController extends GetxController {
   static const String ARGUMENT_JOB_SEEKER_ID = "job_seeker_id";
-  static const String ARGUMENT_RECRUITER_ID = "recruiter_id";
   static const String ARGUMENT_JOB_VACANCY_ID = "job_vacancy_id";
   static const String ARGUMENT_IS_RECRUITER = "is_recruiter";
 
   final ChatRepository chatRepository = Get.find();
   final JobVacancyRepository jobVacancyRepository = Get.find();
+  final JobApplicationRepository jobApplicationRepository = Get.find();
   final UserRepository userRepository = Get.find();
   final TextEditingController messageController = TextEditingController();
+  final TextEditingController statusController = TextEditingController();
 
   String jobSeekerId = "";
-  String recruiterId = "";
-  String? jobVacancyId = "";
+  String jobVacancyId = "";
   bool isRecruiter = false;
 
-  final RxList<ChatWithJobVacancyMinimal> chats =
-      <ChatWithJobVacancyMinimal>[].obs;
+  final RxList<Chat> chats = <Chat>[].obs;
   final Rx<JobVacancy?> jobVacancy = Rxn();
   final Rx<UserJobSeeker?> jobSeekerProfile = Rxn();
   final Rx<UserRecruiter?> recruiterProfile = Rxn();
+  final Rx<JobApplication?> application = Rxn();
 
   @override
   void onInit() {
     super.onInit();
     jobSeekerId = Get.arguments[ARGUMENT_JOB_SEEKER_ID] ?? "";
-    recruiterId = Get.arguments[ARGUMENT_RECRUITER_ID] ?? "";
     jobVacancyId = Get.arguments[ARGUMENT_JOB_VACANCY_ID];
     isRecruiter = Get.arguments[ARGUMENT_IS_RECRUITER] ?? false;
 
@@ -48,24 +47,26 @@ class ChatController extends GetxController {
   }
 
   void refreshData() async {
+    final job = await jobVacancyRepository.getById(jobVacancyId);
+    jobVacancy.value = job;
+
+    application.value = await jobApplicationRepository.get(
+      jobVacancyId,
+      jobSeekerId,
+    );
+
     if (isRecruiter) {
       jobSeekerProfile.value = await userRepository.getJobSeekerProfile(
         jobSeekerId,
       );
     } else {
       recruiterProfile.value = await userRepository.getRecruiterProfile(
-        recruiterId,
+        job!.recruiterId,
       );
     }
 
-    if (jobVacancyId != null) {
-      jobVacancy.value = await jobVacancyRepository.getById(jobVacancyId!);
-    } else {
-      jobVacancy.value = null;
-    }
-
     final data = await chatRepository.getConversations(
-      recruiterId,
+      jobVacancyId,
       jobSeekerId,
     );
     chats.assignAll(data);
@@ -78,7 +79,6 @@ class ChatController extends GetxController {
       Chat(
         id: "",
         createdAt: DateTime.timestamp(),
-        recruiterId: recruiterId,
         jobSeekerId: jobSeekerId,
         jobVacancyId: jobVacancyId,
         message: message,
@@ -86,7 +86,6 @@ class ChatController extends GetxController {
       ),
     );
     messageController.clear();
-    jobVacancyId = null;
     refreshData();
   }
 
@@ -104,9 +103,13 @@ class ChatController extends GetxController {
     }
   }
 
-  void clearJobVacancy() {
-    jobVacancyId = null;
-    jobVacancy.value = null;
+  void setApplicantState(JobApplicationStatus? value) async {
+    if (value == null) return;
+
+    await jobApplicationRepository.setState(
+      application.value!.id,
+      value,
+    );
   }
 }
 
@@ -115,13 +118,11 @@ class ChatPage extends StatelessWidget {
 
   static Map<String, dynamic> createArguments(
     String jobSeekerId,
-    String recruiterId,
-    String? jobVacancyId,
+    String jobVacancyId,
     bool isRecruiter,
   ) {
     return {
       ChatController.ARGUMENT_JOB_SEEKER_ID: jobSeekerId,
-      ChatController.ARGUMENT_RECRUITER_ID: recruiterId,
       ChatController.ARGUMENT_JOB_VACANCY_ID: jobVacancyId,
       ChatController.ARGUMENT_IS_RECRUITER: isRecruiter,
     };
@@ -134,57 +135,87 @@ class ChatPage extends StatelessWidget {
       body: SafeArea(
         child: Column(
           children: [
-            // Header
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-              child: Row(
-                children: [
-                  InkWell(
-                    onTap: () => Get.back(),
-                    child: Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: const BoxDecoration(
-                        color: Color(0xFFA01355),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.arrow_back,
-                        color: Colors.white,
-                        size: 20,
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    child: Center(
-                      child: Obx(
-                        () => Text(
-                          (controller.isRecruiter
-                                  ? controller.jobSeekerProfile.value?.name
-                                  : controller.recruiterProfile.value?.name) ??
-                              "",
-                          style: TextStyle(
-                            color: Color(0xFFA01355),
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 40),
-                ],
-              ),
-            ),
+            _appBar(context),
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
                 child: _chatList(context),
               ),
             ),
-            _jobVacancy(context),
             _messageInput(context),
           ],
         ),
+      ),
+    );
+  }
+
+  static Map<JobApplicationStatus, String> statusMap = {
+    JobApplicationStatus.PENDING: "Dilamar",
+    JobApplicationStatus.SELECTION: "Seleksi",
+    JobApplicationStatus.ACCEPTED: "Direkrut",
+    JobApplicationStatus.REJECTED: "Belum Sesuai",
+  };
+
+  Widget _appBar(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+      child: Row(
+        children: [
+          InkWell(
+            onTap: () => Get.back(),
+            child: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: const BoxDecoration(
+                color: Color(0xFFA01355),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.arrow_back,
+                color: Colors.white,
+                size: 20,
+              ),
+            ),
+          ),
+          Expanded(
+            child: Center(
+              child: Obx(
+                () => Text(
+                  "${controller.jobVacancy.value?.title ?? ""} (${(controller.isRecruiter ? controller.jobSeekerProfile.value?.name : controller.recruiterProfile.value?.name) ?? ""})",
+                  style: TextStyle(
+                    color: Color(0xFFA01355),
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 16),
+          Obx(
+            () => controller.application.value != null
+                ? (controller.application.value!.status ==
+                          JobApplicationStatus.PENDING || !controller.isRecruiter)
+                      ? Text(statusMap[controller.application.value!.status]!)
+                      : DropdownMenu(
+                          controller: controller.statusController,
+                          initialSelection: controller.application.value?.status,
+                          onSelected: controller.setApplicantState,
+                          dropdownMenuEntries: statusMap.entries
+                              .where(
+                                (entry) =>
+                                    entry.key != JobApplicationStatus.PENDING,
+                              )
+                              .map(
+                                (entry) => DropdownMenuEntry(
+                                  value: entry.key,
+                                  label: entry.value,
+                                ),
+                              )
+                              .toList(),
+                        )
+                : Center(),
+          ),
+        ],
       ),
     );
   }
@@ -199,8 +230,8 @@ class ChatPage extends StatelessWidget {
     );
   }
 
-  Widget _chat(BuildContext context, ChatWithJobVacancyMinimal data) {
-    bool isRight = controller.isRecruiter == data.chat.isRecruiter;
+  Widget _chat(BuildContext context, Chat chat) {
+    bool isRight = controller.isRecruiter == chat.isRecruiter;
     final alignment = isRight ? Alignment.centerRight : Alignment.centerLeft;
     final boxDecoration = isRight
         ? const BoxDecoration(
@@ -225,89 +256,16 @@ class ChatPage extends StatelessWidget {
         ? TextStyle(color: Colors.black87, fontSize: 14)
         : TextStyle(color: Colors.white, fontSize: 14);
 
-    return Column(
-      spacing: 8,
-      children: [
-        data.vacancy != null
-            ? GestureDetector(
-                onTap: () => controller.goToJob(data.chat.jobVacancyId!),
-                child: Align(
-                  alignment: alignment,
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 280),
-                    child: Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: boxDecoration,
-                      child: Row(
-                        spacing: 8,
-                        children: [
-                          Text(
-                            "Pekerjaan: ${data.vacancy!.title}",
-                            style: textStyle,
-                          ),
-                          Icon(Icons.arrow_outward, color: textStyle.color),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              )
-            : Center(),
-        Align(
-          alignment: alignment,
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 280),
-            child: Container(
-              padding: const EdgeInsets.all(16),
-              decoration: boxDecoration,
-              child: Text(data.chat.message, style: textStyle),
-            ),
-          ),
+    return Align(
+      alignment: alignment,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 280),
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: boxDecoration,
+          child: Text(chat.message, style: textStyle),
         ),
-      ],
-    );
-  }
-
-  Widget _jobVacancy(BuildContext context) {
-    return Obx(
-      () => controller.jobVacancy.value != null
-          ? Padding(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
-              child: Row(
-                spacing: 8,
-                children: [
-                  GestureDetector(
-                    onTap: () =>
-                        controller.goToJob(controller.jobVacancy.value!.id),
-                    child: Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: const BoxDecoration(
-                        color: Color(0xFFF1F1F1),
-                        borderRadius: BorderRadius.all(Radius.circular(16)),
-                      ),
-                      child: Row(
-                        spacing: 8,
-                        children: [
-                          Text(
-                            "Pekerjaan: ${controller.jobVacancy.value!.title}",
-                            style: TextStyle(
-                              color: Colors.black87,
-                              fontSize: 14,
-                            ),
-                          ),
-                          Icon(Icons.arrow_outward),
-                        ],
-                      ),
-                    ),
-                  ),
-                  IconButton(
-                    onPressed: controller.clearJobVacancy,
-                    icon: Icon(Icons.clear),
-                  ),
-                ],
-              ),
-            )
-          : Center(),
+      ),
     );
   }
 

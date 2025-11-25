@@ -1,15 +1,20 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:wirwa/data/model.dart';
 import 'package:wirwa/data/repositories.dart';
+import 'package:wirwa/screen/chat.dart';
 
-class RecruiterApplicantController extends GetxController {
-  static const String ARGUMENT_ID = "id"; // Ini harusnya Job ID (bukan Application ID)
+class RecruiterApplicantListController extends GetxController {
+  static const String ARGUMENT_ID =
+      "id"; // Ini harusnya Job ID (bukan Application ID)
 
   final JobApplicationRepository jobApplicationRepository = Get.find();
 
   String jobId = "";
-  final RxList<JobApplicationWithSeeker> allApplications = <JobApplicationWithSeeker>[].obs;
+  final RxList<JobApplicationWithSeeker> allApplications =
+      <JobApplicationWithSeeker>[].obs;
   final RxString selectedTab = "Pelamar".obs; // Pilihan: "Pelamar", "Seleksi"
 
   @override
@@ -36,42 +41,79 @@ class RecruiterApplicantController extends GetxController {
   List<JobApplicationWithSeeker> get filteredList {
     if (selectedTab.value == "Pelamar") {
       // Tab Pelamar = Status PENDING
-      return allApplications.where((e) => e.application.status == JobApplicationStatus.PENDING).toList();
+      return allApplications
+          .where((e) => e.application.status == JobApplicationStatus.PENDING)
+          .toList();
     } else {
       // Tab Seleksi = Status ACCEPTED (Diterima/Tahap Seleksi)
-      return allApplications.where((e) => e.application.status == JobApplicationStatus.ACCEPTED).toList();
+      return allApplications
+          .where((e) => e.application.status == JobApplicationStatus.SELECTION)
+          .toList();
     }
   }
 
-  String get pelamarCount =>
-      allApplications.where((e) => e.application.status == JobApplicationStatus.PENDING).length.toString();
+  String get pelamarCount => allApplications
+      .where((e) => e.application.status == JobApplicationStatus.PENDING)
+      .length
+      .toString();
 
   // PERBAIKAN: Menambahkan 'get' di sini
-  String get seleksiCount =>
-      allApplications.where((e) => e.application.status == JobApplicationStatus.ACCEPTED).length.toString();
+  String get seleksiCount => allApplications
+      .where((e) => e.application.status == JobApplicationStatus.ACCEPTED)
+      .length
+      .toString();
 
   // --- Actions ---
   Future<void> accept(String applicationId) async {
-    await jobApplicationRepository.setState(applicationId, JobApplicationStatus.ACCEPTED);
+    await jobApplicationRepository.setState(
+      applicationId,
+      JobApplicationStatus.SELECTION,
+    );
     refreshData();
-    Get.snackbar("Berhasil", "Pelamar dipindahkan ke tahap Seleksi", backgroundColor: Colors.green, colorText: Colors.white, snackPosition: SnackPosition.BOTTOM, margin: EdgeInsets.all(16));
+    Get.snackbar(
+      "Berhasil",
+      "Pelamar dipindahkan ke tahap Seleksi",
+      backgroundColor: Colors.green,
+      colorText: Colors.white,
+      snackPosition: SnackPosition.BOTTOM,
+      margin: EdgeInsets.all(16),
+    );
   }
 
   Future<void> reject(String applicationId) async {
-    await jobApplicationRepository.setState(applicationId, JobApplicationStatus.REJECTED);
+    await jobApplicationRepository.setState(
+      applicationId,
+      JobApplicationStatus.REJECTED,
+    );
     refreshData();
-    Get.snackbar("Ditolak", "Pelamar telah ditolak", backgroundColor: Colors.red, colorText: Colors.white, snackPosition: SnackPosition.BOTTOM, margin: EdgeInsets.all(16));
+    Get.snackbar(
+      "Ditolak",
+      "Pelamar telah ditolak",
+      backgroundColor: Colors.red,
+      colorText: Colors.white,
+      snackPosition: SnackPosition.BOTTOM,
+      margin: EdgeInsets.all(16),
+    );
+  }
+
+  void goToChat(String jobVacancyId, String jobSeekerId) {
+    Get.to(
+      () => ChatPage(),
+      arguments: ChatPage.createArguments(jobSeekerId, jobVacancyId, true),
+    );
   }
 }
 
-class RecruiterApplicantPage extends StatelessWidget {
+class RecruiterApplicantListPage extends StatelessWidget {
   static Map<String, dynamic> createArguments(String id) {
-    return {RecruiterApplicantController.ARGUMENT_ID: id};
+    return {RecruiterApplicantListController.ARGUMENT_ID: id};
   }
 
-  final RecruiterApplicantController controller = Get.put(RecruiterApplicantController());
+  final RecruiterApplicantListController controller = Get.put(
+    RecruiterApplicantListController(),
+  );
 
-  RecruiterApplicantPage({super.key});
+  RecruiterApplicantListPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -93,7 +135,11 @@ class RecruiterApplicantPage extends StatelessWidget {
                         color: Color(0xFFA01355), // Merah Marun
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(Icons.arrow_back, color: Colors.white, size: 20),
+                      child: const Icon(
+                        Icons.arrow_back,
+                        color: Colors.white,
+                        size: 20,
+                      ),
                     ),
                   ),
                   const Expanded(
@@ -101,7 +147,8 @@ class RecruiterApplicantPage extends StatelessWidget {
                       child: Text(
                         "Daftar Pelamar",
                         style: TextStyle(
-                          color: Colors.black87, // Judul Hitam sesuai gambar (di gambar agak gelap)
+                          color: Colors.black87,
+                          // Judul Hitam sesuai gambar (di gambar agak gelap)
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
                         ),
@@ -116,24 +163,26 @@ class RecruiterApplicantPage extends StatelessWidget {
             // --- TABS (Pelamar / Seleksi) ---
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Obx(() => Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  _buildTabButton(
-                    "Pelamar",
-                    controller.pelamarCount,
-                    isActive: controller.selectedTab.value == "Pelamar",
-                    onTap: () => controller.selectedTab.value = "Pelamar",
-                  ),
-                  const SizedBox(width: 16),
-                  _buildTabButton(
-                    "Seleksi",
-                    controller.seleksiCount,
-                    isActive: controller.selectedTab.value == "Seleksi",
-                    onTap: () => controller.selectedTab.value = "Seleksi",
-                  ),
-                ],
-              )),
+              child: Obx(
+                () => Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    _buildTabButton(
+                      "Pelamar",
+                      controller.pelamarCount,
+                      isActive: controller.selectedTab.value == "Pelamar",
+                      onTap: () => controller.selectedTab.value = "Pelamar",
+                    ),
+                    const SizedBox(width: 16),
+                    _buildTabButton(
+                      "Seleksi",
+                      controller.seleksiCount,
+                      isActive: controller.selectedTab.value == "Seleksi",
+                      onTap: () => controller.selectedTab.value = "Seleksi",
+                    ),
+                  ],
+                ),
+              ),
             ),
 
             const SizedBox(height: 24),
@@ -154,7 +203,8 @@ class RecruiterApplicantPage extends StatelessWidget {
                 return ListView.separated(
                   padding: const EdgeInsets.symmetric(horizontal: 24),
                   itemCount: list.length,
-                  separatorBuilder: (context, index) => const SizedBox(height: 16),
+                  separatorBuilder: (context, index) =>
+                      const SizedBox(height: 16),
                   itemBuilder: (context, index) {
                     final item = list[index];
                     return _buildApplicantCard(item);
@@ -170,15 +220,23 @@ class RecruiterApplicantPage extends StatelessWidget {
 
   // --- WIDGET HELPER ---
 
-  Widget _buildTabButton(String label, String count, {required bool isActive, required VoidCallback onTap}) {
+  Widget _buildTabButton(
+    String label,
+    String count, {
+    required bool isActive,
+    required VoidCallback onTap,
+  }) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
         decoration: BoxDecoration(
-          color: isActive ? const Color(0xFFE57373) : Colors.white, // Aktif: Pink Orange, Non: Putih
+          color: isActive ? const Color(0xFFE57373) : Colors.white,
+          // Aktif: Pink Orange, Non: Putih
           borderRadius: BorderRadius.circular(12),
-          border: isActive ? null : Border.all(color: const Color(0xFFE57373).withOpacity(0.5)),
+          border: isActive
+              ? null
+              : Border.all(color: const Color(0xFFE57373).withOpacity(0.5)),
         ),
         child: Row(
           children: [
@@ -193,18 +251,22 @@ class RecruiterApplicantPage extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
               decoration: BoxDecoration(
-                color: isActive ? Colors.white : const Color(0xFFE57373).withOpacity(0.1),
+                color: isActive
+                    ? Colors.white
+                    : const Color(0xFFE57373).withOpacity(0.1),
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Text(
                 count,
                 style: TextStyle(
-                  color: isActive ? const Color(0xFFE57373) : const Color(0xFFE57373),
+                  color: isActive
+                      ? const Color(0xFFE57373)
+                      : const Color(0xFFE57373),
                   fontSize: 12,
                   fontWeight: FontWeight.bold,
                 ),
               ),
-            )
+            ),
           ],
         ),
       ),
@@ -235,19 +297,28 @@ class RecruiterApplicantPage extends StatelessWidget {
                 borderRadius: BorderRadius.circular(12),
                 child: item.seeker.pictureUrl.isNotEmpty
                     ? Image.network(
-                  item.seeker.pictureUrl,
-                  width: 50,
-                  height: 50,
-                  fit: BoxFit.cover,
-                  errorBuilder: (c, o, s) => Container(
-                    width: 50, height: 50, color: Colors.grey[300],
-                    child: const Icon(Icons.person, color: Colors.grey),
-                  ),
-                )
+                        item.seeker.pictureUrl,
+                        width: 50,
+                        height: 50,
+                        fit: BoxFit.cover,
+                        errorBuilder: (c, o, s) => Container(
+                          width: 50,
+                          height: 50,
+                          color: Colors.grey[300],
+                          child: const Icon(Icons.person, color: Colors.grey),
+                        ),
+                      )
                     : Container(
-                  width: 50, height: 50, color: Colors.grey[300],
-                  child: Center(child: Text(item.seeker.name[0], style: const TextStyle(fontWeight: FontWeight.bold))),
-                ),
+                        width: 50,
+                        height: 50,
+                        color: Colors.grey[300],
+                        child: Center(
+                          child: Text(
+                            item.seeker.name[0],
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      ),
               ),
               // Status Dot Hijau (Online/Active)
               Positioned(
@@ -322,6 +393,13 @@ class RecruiterApplicantPage extends StatelessWidget {
             ),
           ] else ...[
             // Jika Tab Seleksi, tampilkan status badge saja
+            OutlinedButton(
+              onPressed: () => controller.goToChat(
+                item.application.jobVacancyId,
+                item.application.jobSeekerId,
+              ),
+              child: const Text("Chat"),
+            ),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
@@ -329,11 +407,20 @@ class RecruiterApplicantPage extends StatelessWidget {
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
-                "Lolos",
-                style: TextStyle(color: Colors.green[700], fontSize: 10, fontWeight: FontWeight.bold),
+                item.application.status == JobApplicationStatus.SELECTION
+                    ? "Seleksi"
+                    : "Lolos",
+                style: TextStyle(
+                  color:
+                      item.application.status == JobApplicationStatus.SELECTION
+                      ? Colors.grey[700]
+                      : Colors.green[700],
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-            )
-          ]
+            ),
+          ],
         ],
       ),
     );

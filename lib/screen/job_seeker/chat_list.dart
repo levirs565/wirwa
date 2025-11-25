@@ -23,13 +23,12 @@ class JobSeekerChatListController extends GetxController {
     chats.assignAll(data);
   }
 
-  void toChat(String recruiterId) {
+  void toChat(String vacancyId) {
     Get.to(
       () => ChatPage(),
       arguments: ChatPage.createArguments(
         authRepository.getUserId()!,
-        recruiterId,
-        null,
+        vacancyId,
         false,
       ),
     );
@@ -52,7 +51,7 @@ class JobSeekerChatListPage extends StatelessWidget {
 
   Widget _listTile(BuildContext context, RecruiterMinimalWithChat data) {
     return InkWell(
-      onTap: () => controller.toChat(data.chat.recruiterId),
+      onTap: () => controller.toChat(data.chat.jobVacancyId),
       borderRadius: BorderRadius.circular(12),
       child: Container(
         padding: const EdgeInsets.all(16),

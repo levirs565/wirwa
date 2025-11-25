@@ -89,8 +89,8 @@ abstract interface class ChatRepository {
 
   Future<List<RecruiterMinimalWithChat>> getByJobSeekerId(String jobSeekerId);
 
-  Future<List<ChatWithJobVacancyMinimal>> getConversations(
-    String recruiterId,
+  Future<List<Chat>> getConversations(
+    String vacancyId,
     String jobSeekerId,
   );
 }

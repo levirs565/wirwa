@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:wirwa/data/model.dart';
 import 'package:wirwa/data/repositories.dart';
-import 'package:wirwa/screen/recruiter/applicant.dart';
+import 'package:wirwa/screen/recruiter/applicant_list.dart';
 
 class RecruiterJobController extends GetxController {
   static const String ARGUMENT_ID = "id";
@@ -36,10 +36,10 @@ class RecruiterJobController extends GetxController {
     this.applications.value = applications;
   }
 
-  Future<void> toDetail(String id) async {
+  Future<void> goToApplicantList() async {
     await Get.to(
-      () => RecruiterApplicantPage(),
-      arguments: RecruiterApplicantPage.createArguments(id),
+      () => RecruiterApplicantListPage(),
+      arguments: RecruiterApplicantListPage.createArguments(id),
     );
     await refresh();
   }
@@ -119,7 +119,8 @@ class RecruiterJobPage extends StatelessWidget {
                         const SizedBox(height: 8),
                         // Company Name
                         const Text(
-                          "Perusahaan Recruiter", // Placeholder (karena model blm ada field nama PT)
+                          "Perusahaan Recruiter",
+                          // Placeholder (karena model blm ada field nama PT)
                           style: TextStyle(fontSize: 16, color: Colors.white70),
                         ),
                         const SizedBox(height: 16),
@@ -217,71 +218,10 @@ class RecruiterJobPage extends StatelessWidget {
 
                         const SizedBox(height: 30),
 
-                        // --- LIST PELAMAR (Pengganti tombol daftar) ---
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Text(
-                              "Pelamar (Applicant)",
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black87,
-                              ),
-                            ),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 4,
-                              ),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFFA01355),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Text(
-                                "${controller.applications.length}",
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ],
+                        OutlinedButton(
+                          onPressed: controller.goToApplicantList,
+                          child: const Text("Daftat Pelamar"),
                         ),
-                        const SizedBox(height: 16),
-
-                        if (controller.applications.isEmpty)
-                          const Padding(
-                            padding: EdgeInsets.symmetric(vertical: 20),
-                            child: Center(
-                              child: Text(
-                                "Belum ada pelamar.",
-                                style: TextStyle(color: Colors.grey),
-                              ),
-                            ),
-                          )
-                        else
-                          ListView.separated(
-                            padding: EdgeInsets.zero,
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            itemCount: controller.applications.length,
-                            separatorBuilder: (context, index) =>
-                                const SizedBox(height: 12),
-                            itemBuilder: (context, index) =>
-                                _buildApplicantCard(
-                                  controller.applications[index],
-                                  () => controller.toDetail(
-                                    controller
-                                        .applications[index]
-                                        .application
-                                        .id,
-                                  ),
-                                ),
-                          ),
-
-                        const SizedBox(height: 40),
                       ],
                     ),
                   ),
@@ -369,100 +309,6 @@ class RecruiterJobPage extends StatelessWidget {
         const SizedBox(height: 4),
         Text(label, style: const TextStyle(color: Colors.grey, fontSize: 12)),
       ],
-    );
-  }
-
-  Widget _buildApplicantCard(
-    JobApplicationWithSeeker data,
-    VoidCallback onTap,
-  ) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.grey.shade200),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.03),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Row(
-          children: [
-            CircleAvatar(
-              radius: 24,
-              backgroundColor: Colors.grey[300],
-              backgroundImage: (data.seeker.pictureUrl.isNotEmpty)
-                  ? NetworkImage(data.seeker.pictureUrl) as ImageProvider
-                  : null,
-              child: data.seeker.pictureUrl.isEmpty
-                  ? Text(
-                      data.seeker.name[0].toUpperCase(),
-                      style: const TextStyle(
-                        color: Color(0xFFA01355),
-                        fontWeight: FontWeight.bold,
-                      ),
-                    )
-                  : null,
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    data.seeker.name,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 2,
-                    ),
-                    decoration: BoxDecoration(
-                      color:
-                          data.application.status ==
-                              JobApplicationStatus.PENDING
-                          ? Colors.orange[100]
-                          : (data.application.status ==
-                                    JobApplicationStatus.ACCEPTED
-                                ? Colors.green[100]
-                                : Colors.red[100]),
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    child: Text(
-                      data.application.status.toString().split('.').last,
-                      style: TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.bold,
-                        color:
-                            data.application.status ==
-                                JobApplicationStatus.PENDING
-                            ? Colors.orange[800]
-                            : (data.application.status ==
-                                      JobApplicationStatus.ACCEPTED
-                                  ? Colors.green[800]
-                                  : Colors.red[800]),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const Icon(Icons.chevron_right, color: Colors.grey),
-          ],
-        ),
-      ),
     );
   }
 }

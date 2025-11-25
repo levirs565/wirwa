@@ -120,6 +120,8 @@ class JobApplicationStatusMapper extends EnumMapper<JobApplicationStatus> {
     switch (value) {
       case "pending":
         return JobApplicationStatus.PENDING;
+      case "selection":
+        return JobApplicationStatus.SELECTION;
       case "accepted":
         return JobApplicationStatus.ACCEPTED;
       case "rejected":
@@ -134,6 +136,8 @@ class JobApplicationStatusMapper extends EnumMapper<JobApplicationStatus> {
     switch (self) {
       case JobApplicationStatus.PENDING:
         return "pending";
+      case JobApplicationStatus.SELECTION:
+        return "selection";
       case JobApplicationStatus.ACCEPTED:
         return "accepted";
       case JobApplicationStatus.REJECTED:
@@ -1453,19 +1457,13 @@ class ChatMapper extends ClassMapperBase<Chat> {
     _$createdAt,
     key: r'created_at',
   );
-  static String _$recruiterId(Chat v) => v.recruiterId;
-  static const Field<Chat, String> _f$recruiterId = Field(
-    'recruiterId',
-    _$recruiterId,
-    key: r'recruiter_id',
-  );
   static String _$jobSeekerId(Chat v) => v.jobSeekerId;
   static const Field<Chat, String> _f$jobSeekerId = Field(
     'jobSeekerId',
     _$jobSeekerId,
     key: r'job_seeker_id',
   );
-  static String? _$jobVacancyId(Chat v) => v.jobVacancyId;
+  static String _$jobVacancyId(Chat v) => v.jobVacancyId;
   static const Field<Chat, String> _f$jobVacancyId = Field(
     'jobVacancyId',
     _$jobVacancyId,
@@ -1484,7 +1482,6 @@ class ChatMapper extends ClassMapperBase<Chat> {
   final MappableFields<Chat> fields = const {
     #id: _f$id,
     #createdAt: _f$createdAt,
-    #recruiterId: _f$recruiterId,
     #jobSeekerId: _f$jobSeekerId,
     #jobVacancyId: _f$jobVacancyId,
     #message: _f$message,
@@ -1495,7 +1492,6 @@ class ChatMapper extends ClassMapperBase<Chat> {
     return Chat(
       id: data.dec(_f$id),
       createdAt: data.dec(_f$createdAt),
-      recruiterId: data.dec(_f$recruiterId),
       jobSeekerId: data.dec(_f$jobSeekerId),
       jobVacancyId: data.dec(_f$jobVacancyId),
       message: data.dec(_f$message),
@@ -1552,7 +1548,6 @@ abstract class ChatCopyWith<$R, $In extends Chat, $Out>
   $R call({
     String? id,
     DateTime? createdAt,
-    String? recruiterId,
     String? jobSeekerId,
     String? jobVacancyId,
     String? message,
@@ -1571,18 +1566,16 @@ class _ChatCopyWithImpl<$R, $Out> extends ClassCopyWithBase<$R, Chat, $Out>
   $R call({
     String? id,
     DateTime? createdAt,
-    String? recruiterId,
     String? jobSeekerId,
-    Object? jobVacancyId = $none,
+    String? jobVacancyId,
     String? message,
     bool? isRecruiter,
   }) => $apply(
     FieldCopyWithData({
       if (id != null) #id: id,
       if (createdAt != null) #createdAt: createdAt,
-      if (recruiterId != null) #recruiterId: recruiterId,
       if (jobSeekerId != null) #jobSeekerId: jobSeekerId,
-      if (jobVacancyId != $none) #jobVacancyId: jobVacancyId,
+      if (jobVacancyId != null) #jobVacancyId: jobVacancyId,
       if (message != null) #message: message,
       if (isRecruiter != null) #isRecruiter: isRecruiter,
     }),
@@ -1591,7 +1584,6 @@ class _ChatCopyWithImpl<$R, $Out> extends ClassCopyWithBase<$R, Chat, $Out>
   Chat $make(CopyWithData data) => Chat(
     id: data.get(#id, or: $value.id),
     createdAt: data.get(#createdAt, or: $value.createdAt),
-    recruiterId: data.get(#recruiterId, or: $value.recruiterId),
     jobSeekerId: data.get(#jobSeekerId, or: $value.jobSeekerId),
     jobVacancyId: data.get(#jobVacancyId, or: $value.jobVacancyId),
     message: data.get(#message, or: $value.message),

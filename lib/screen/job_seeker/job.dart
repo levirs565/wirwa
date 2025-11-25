@@ -69,7 +69,6 @@ class JobSeekerJobController extends GetxController {
       () => ChatPage(),
       arguments: ChatPage.createArguments(
         authRepository.getUserId()!,
-        job.value!.recruiterId,
         id,
         false,
       ),

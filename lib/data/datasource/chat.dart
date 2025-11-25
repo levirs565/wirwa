@@ -22,14 +22,15 @@ class ChatDataSource implements ChatRepository {
   ) async {
     final data = await client
         .from("chat_latest")
-        .select("*,user_recruiter(name,picture_url)")
+        .select("*,job_vacancy(title,user_recruiter(name,picture_url))")
         .eq("job_seeker_id", jobSeekerId);
     return data
         .map(
           (raw) => RecruiterMinimalWithChat(
             recruiter: UserRecruiterMinimalMapper.fromMap(
-              raw["user_recruiter"],
+              raw["job_vacancy"]["user_recruiter"],
             ),
+            vacancy: JobVacancyMinimalMapper.fromMap(raw["job_vacancy"]),
             chat: ChatMapper.fromMap(raw),
           ),
         )
@@ -42,12 +43,13 @@ class ChatDataSource implements ChatRepository {
   ) async {
     final data = await client
         .from("chat_latest")
-        .select("*,user_job_seeker(name,picture_url)")
-        .eq("recruiter_id", recruiterId);
+        .select("*,job_vacancy(title),user_job_seeker(name,picture_url)")
+        .eq("job_vacancy.recruiter_id", recruiterId);
     return data
         .map(
           (raw) => JobSeekerMinimalWithChat(
             seeker: UserJobSeekerMinimalMapper.fromMap(raw["user_job_seeker"]),
+            vacancy: JobVacancyMinimalMapper.fromMap(raw["job_vacancy"]),
             chat: ChatMapper.fromMap(raw),
           ),
         )
@@ -55,24 +57,15 @@ class ChatDataSource implements ChatRepository {
   }
 
   @override
-  Future<List<ChatWithJobVacancyMinimal>> getConversations(
-    String recruiterId,
+  Future<List<Chat>> getConversations(
+    String vacancyId,
     String jobSeekerId,
   ) async {
     final data = await client
         .from("chat")
-        .select("*,job_vacancy(title)")
-        .eq("recruiter_id", recruiterId)
+        .select("*")
+        .eq("job_vacancy_id", vacancyId)
         .eq("job_seeker_id", jobSeekerId);
-    return data
-        .map(
-          (raw) => ChatWithJobVacancyMinimal(
-            chat: ChatMapper.fromMap(raw),
-            vacancy: raw["job_vacancy"] != null
-                ? JobVacancyMinimalMapper.fromMap(raw["job_vacancy"])
-                : null,
-          ),
-        )
-        .toList();
+    return data.map((raw) => ChatMapper.fromMap(raw)).toList();
   }
 }
