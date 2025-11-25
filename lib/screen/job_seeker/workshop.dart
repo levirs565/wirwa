@@ -117,22 +117,56 @@ class JobSeekerWorkshopPage extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // 1. Gambar Cover
+              // 1. Gambar Cover dari Server
               Container(
                 width: double.infinity,
                 height: 220,
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade300,
-                  image: const DecorationImage(
-                    image: AssetImage(
-                      'assets/placeholder_study.png',
-                    ), // Placeholder sementara
-                    fit: BoxFit.cover,
-                  ),
-                ),
-                child: const Center(
-                  child: Icon(Icons.image, size: 50, color: Colors.white54),
-                ),
+                child: data.imageUrl != null && data.imageUrl!.isNotEmpty
+                    ? Image.network(
+                        data.imageUrl!,
+                        width: double.infinity,
+                        height: 220,
+                        fit: BoxFit.cover,
+                        loadingBuilder: (context, child, loadingProgress) {
+                          if (loadingProgress == null) return child;
+                          return Container(
+                            color: Colors.grey.shade300,
+                            child: Center(
+                              child: CircularProgressIndicator(
+                                color: kPrimaryColor,
+                                value:
+                                    loadingProgress.expectedTotalBytes != null
+                                    ? loadingProgress.cumulativeBytesLoaded /
+                                          loadingProgress.expectedTotalBytes!
+                                    : null,
+                              ),
+                            ),
+                          );
+                        },
+                        errorBuilder: (context, error, stackTrace) {
+                          print("Error loading workshop image: $error");
+                          return Container(
+                            color: Colors.grey.shade300,
+                            child: Center(
+                              child: Icon(
+                                Icons.image_not_supported,
+                                size: 50,
+                                color: Colors.grey.shade500,
+                              ),
+                            ),
+                          );
+                        },
+                      )
+                    : Container(
+                        color: Colors.grey.shade300,
+                        child: Center(
+                          child: Icon(
+                            Icons.school,
+                            size: 50,
+                            color: Colors.grey.shade500,
+                          ),
+                        ),
+                      ),
               ),
 
               Padding(
@@ -154,44 +188,81 @@ class JobSeekerWorkshopPage extends StatelessWidget {
                     // 3. Penyelenggara (Logo + Nama)
                     Row(
                       children: [
-                        // Logo
-                        Container(
-                          padding: const EdgeInsets.all(4),
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            border: Border.all(color: Colors.blueAccent),
-                          ),
-                          child: const Icon(
-                            Icons.business,
-                            size: 16,
-                            color: Colors.blueAccent,
-                          ),
-                        ),
+                        // Logo Recruiter dari Server
+                        Obx(() {
+                          final rec = controller.recruiter.value;
+                          if (rec?.pictureUrl != null &&
+                              rec!.pictureUrl!.isNotEmpty) {
+                            return Container(
+                              width: 24,
+                              height: 24,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                border: Border.all(color: Colors.blueAccent),
+                              ),
+                              child: ClipOval(
+                                child: Image.network(
+                                  rec.pictureUrl!,
+                                  width: 24,
+                                  height: 24,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return Container(
+                                      color: Colors.white,
+                                      child: Icon(
+                                        Icons.business,
+                                        size: 16,
+                                        color: Colors.blueAccent,
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
+                            );
+                          }
+                          return Container(
+                            padding: const EdgeInsets.all(4),
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(color: Colors.blueAccent),
+                            ),
+                            child: const Icon(
+                              Icons.business,
+                              size: 16,
+                              color: Colors.blueAccent,
+                            ),
+                          );
+                        }),
                         const SizedBox(width: 8),
 
                         // Nama Perusahaan (Recruiter Name)
-                        Text(
-                          // Jika data masih loading atau null, tampilkan placeholder
-                          controller.recruiter.value?.name ??
-                              "Memuat Penyelenggara...",
-                          style: TextStyle(color: kSubtitleColor, fontSize: 14),
-                        ),
+                        Obx(() {
+                          final rec = controller.recruiter.value;
+                          return Text(
+                            rec?.name ?? "Memuat Penyelenggara...",
+                            style: TextStyle(
+                              color: kSubtitleColor,
+                              fontSize: 14,
+                            ),
+                          );
+                        }),
                       ],
                     ),
                     const SizedBox(height: 16),
 
-                    // 4. Lokasi & Tanggal
+                    // 4. Tanggal Dibuat
                     Row(
                       children: [
-                        _buildIconInfo(
-                          Icons.location_on_outlined,
-                          "Zoom Meeting",
-                        ), // Ganti data.location
-                        const SizedBox(width: 20),
-                        _buildIconInfo(
+                        Icon(
                           Icons.calendar_today_outlined,
-                          "20 Desember 2025",
-                        ), // Ganti formattedDate
+                          size: 16,
+                          color: kPrimaryColor,
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          "Dibuat: ${_formatDate(data.createdAt)}",
+                          style: TextStyle(fontSize: 13, color: kSubtitleColor),
+                        ),
                       ],
                     ),
                     const SizedBox(height: 24),
@@ -226,15 +297,23 @@ class JobSeekerWorkshopPage extends StatelessWidget {
     );
   }
 
-  // Widget Helper: Icon Merah + Teks
-  Widget _buildIconInfo(IconData icon, String text) {
-    return Row(
-      children: [
-        Icon(icon, color: const Color(0xFFA53337), size: 20),
-        const SizedBox(width: 6),
-        Text(text, style: TextStyle(color: kSubtitleColor, fontSize: 13)),
-      ],
-    );
+  // Format tanggal
+  String _formatDate(DateTime date) {
+    final months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'Mei',
+      'Jun',
+      'Jul',
+      'Agu',
+      'Sep',
+      'Okt',
+      'Nov',
+      'Des',
+    ];
+    return "${date.day} ${months[date.month - 1]} ${date.year}";
   }
 
   // Widget Helper: Tombol Bawah

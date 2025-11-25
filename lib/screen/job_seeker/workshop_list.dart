@@ -2,15 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:wirwa/data/model.dart';
 import 'package:wirwa/data/repositories.dart';
-import 'workshop.dart'; 
+import 'workshop.dart';
 
 // --- Controller ---
 class JobSeekerWorkshopListController extends GetxController {
   final WorkshopRepository workshopRepository = Get.find();
   final RxList<WorkshopWithRecruiter> workshops = <WorkshopWithRecruiter>[].obs;
-  
+
   // Tambahan untuk filter UI
-  final List<String> categories = ["Semua", "Penuh Waktu", "Paruh Waktu", "Bootcamp"];
+  final List<String> categories = [
+    "Semua",
+    "Penuh Waktu",
+    "Paruh Waktu",
+    "Bootcamp",
+  ];
   final RxInt selectedCategoryIndex = 0.obs;
 
   @override
@@ -45,7 +50,7 @@ class JobSeekerWorkshopListPage extends StatelessWidget {
   final controller = Get.put(JobSeekerWorkshopListController());
 
   final Color kBackgroundColor = const Color(0xFFFFF5F7);
-  final Color kPrimaryColor = const Color(0xFFFF5A5F); 
+  final Color kPrimaryColor = const Color(0xFFFF5A5F);
   final Color kTextColor = const Color(0xFF1F1F1F);
   final Color kSubtitleColor = const Color(0xFF8A8A8A);
 
@@ -64,12 +69,19 @@ class JobSeekerWorkshopListPage extends StatelessWidget {
             Expanded(
               child: Obx(
                 () => controller.workshops.isEmpty
-                    ? Center(child: Text("Belum ada pelatihan", style: TextStyle(color: kSubtitleColor)))
+                    ? Center(
+                        child: Text(
+                          "Belum ada pelatihan",
+                          style: TextStyle(color: kSubtitleColor),
+                        ),
+                      )
                     : ListView.builder(
                         padding: const EdgeInsets.symmetric(horizontal: 20),
                         itemCount: controller.workshops.length,
-                        itemBuilder: (context, index) =>
-                            _buildWorkshopCard(context, controller.workshops[index]),
+                        itemBuilder: (context, index) => _buildWorkshopCard(
+                          context,
+                          controller.workshops[index],
+                        ),
                       ),
               ),
             ),
@@ -96,29 +108,45 @@ class JobSeekerWorkshopListPage extends StatelessWidget {
                 child: Text(
                   "Pelatihan",
                   textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: kTextColor),
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: kTextColor,
+                  ),
                 ),
               ),
-              const SizedBox(width: 24), // Penyeimbang icon back agar judul pas di tengah
+              const SizedBox(
+                width: 24,
+              ), // Penyeimbang icon back agar judul pas di tengah
             ],
           ),
           const SizedBox(height: 20),
-          
+
           // Search Bar
           Container(
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
-                BoxShadow(color: Colors.grey.withOpacity(0.1), blurRadius: 5, offset: const Offset(0, 2))
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.1),
+                  blurRadius: 5,
+                  offset: const Offset(0, 2),
+                ),
               ],
             ),
             child: TextField(
               decoration: InputDecoration(
                 hintText: "Cari Pelatihan",
                 border: InputBorder.none,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-                suffixIcon: Icon(Icons.tune, color: kSubtitleColor), // Icon filter di kanan
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 14,
+                ),
+                suffixIcon: Icon(
+                  Icons.tune,
+                  color: kSubtitleColor,
+                ), // Icon filter di kanan
               ),
             ),
           ),
@@ -142,11 +170,18 @@ class JobSeekerWorkshopListPage extends StatelessWidget {
               onTap: () => controller.changeCategory(index),
               child: Container(
                 margin: const EdgeInsets.only(right: 10),
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 8,
+                ),
                 decoration: BoxDecoration(
                   color: isSelected ? kPrimaryColor : Colors.transparent,
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: isSelected ? kPrimaryColor : kPrimaryColor.withOpacity(0.5)),
+                  border: Border.all(
+                    color: isSelected
+                        ? kPrimaryColor
+                        : kPrimaryColor.withOpacity(0.5),
+                  ),
                 ),
                 child: Center(
                   child: Text(
@@ -175,28 +210,77 @@ class JobSeekerWorkshopListPage extends StatelessWidget {
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
-            BoxShadow(color: Colors.grey.withOpacity(0.1), blurRadius: 10, offset: const Offset(0, 4))
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.1),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
           ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Gambar Workshop
-            ClipRRect(
-              borderRadius: const BorderRadius.only(topLeft: Radius.circular(16), topRight: Radius.circular(16)),
-              child: Container(
+            if (data.workshop.imageUrl != null &&
+                data.workshop.imageUrl!.isNotEmpty)
+              ClipRRect(
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(16),
+                  topRight: Radius.circular(16),
+                ),
+                child: Image.network(
+                  data.workshop.imageUrl!,
+                  height: 150,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Container(
+                      height: 150,
+                      color: kPrimaryColor.withOpacity(0.1),
+                      child: Icon(
+                        Icons.image_not_supported,
+                        size: 50,
+                        color: kPrimaryColor,
+                      ),
+                    );
+                  },
+                  loadingBuilder: (context, child, loadingProgress) {
+                    if (loadingProgress == null) return child;
+                    return Container(
+                      height: 150,
+                      color: kPrimaryColor.withOpacity(0.1),
+                      child: Center(
+                        child: CircularProgressIndicator(
+                          color: kPrimaryColor,
+                          value: loadingProgress.expectedTotalBytes != null
+                              ? loadingProgress.cumulativeBytesLoaded /
+                                    loadingProgress.expectedTotalBytes!
+                              : null,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              )
+            else
+              // Placeholder jika tidak ada gambar
+              Container(
                 height: 150,
                 width: double.infinity,
-                color: Colors.grey.shade300, // Placeholder warna abu-abu
-                // Gunakan kode di bawah jika sudah ada URL gambar di model:
-                // child: Image.network(
-                //   data.workshop.imageUrl ?? "https://via.placeholder.com/300", 
-                //   fit: BoxFit.cover,
-                // ),
-                child: const Icon(Icons.image, size: 50, color: Colors.white), // Placeholder icon
+                decoration: BoxDecoration(
+                  color: kPrimaryColor.withOpacity(0.1),
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(16),
+                    topRight: Radius.circular(16),
+                  ),
+                ),
+                child: Icon(
+                  Icons.school,
+                  size: 50,
+                  color: kPrimaryColor.withOpacity(0.5),
+                ),
               ),
-            ),
-            
+
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
@@ -205,25 +289,47 @@ class JobSeekerWorkshopListPage extends StatelessWidget {
                   // Judul
                   Text(
                     data.workshop.title,
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 8),
-                  
+
                   // Nama Penyelenggara (Logo kecil + Nama)
                   Row(
                     children: [
-                      const CircleAvatar(
-                        radius: 10,
-                        backgroundColor: Colors.blueAccent,
-                        child: Icon(Icons.business, size: 12, color: Colors.white),
-                      ),
+                      // Logo recruiter
+                      if (data.recruiter.pictureUrl != null &&
+                          data.recruiter.pictureUrl!.isNotEmpty)
+                        CircleAvatar(
+                          radius: 10,
+                          backgroundImage: NetworkImage(
+                            data.recruiter.pictureUrl!,
+                          ),
+                          backgroundColor: Colors.blueAccent.withOpacity(0.1),
+                        )
+                      else
+                        const CircleAvatar(
+                          radius: 10,
+                          backgroundColor: Colors.blueAccent,
+                          child: Icon(
+                            Icons.business,
+                            size: 12,
+                            color: Colors.white,
+                          ),
+                        ),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          data.recruiter?.name ?? "Penyelenggara",
-                          style: TextStyle(color: kSubtitleColor, fontSize: 12, fontWeight: FontWeight.w500),
+                          data.recruiter.name,
+                          style: TextStyle(
+                            color: kSubtitleColor,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                          ),
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
@@ -233,19 +339,37 @@ class JobSeekerWorkshopListPage extends StatelessWidget {
 
                   // Deskripsi Singkat
                   Text(
-                    data.workshop.description, // Pastikan field ini ada di model
-                    style: TextStyle(color: kTextColor.withOpacity(0.8), fontSize: 14, height: 1.4),
+                    data
+                        .workshop
+                        .description, // Pastikan field ini ada di model
+                    style: TextStyle(
+                      color: kTextColor.withOpacity(0.8),
+                      fontSize: 14,
+                      height: 1.4,
+                    ),
                     maxLines: 3,
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 16),
 
-                  // Lokasi & Tanggal
+                  // Tanggal Dibuat & Link Form
                   Row(
                     children: [
-                      _buildFooterInfo(Icons.location_on_outlined, "Zoom Meeting"), // Bisa ganti data.workshop.location
-                      const SizedBox(width: 16),
-                      _buildFooterInfo(Icons.calendar_today_outlined, "20 Des 2025"), // Bisa ganti format tanggal
+                      _buildFooterInfo(
+                        Icons.calendar_today_outlined,
+                        _formatDate(data.workshop.createdAt),
+                      ),
+                      const Spacer(),
+                      Icon(Icons.link, size: 16, color: kPrimaryColor),
+                      const SizedBox(width: 4),
+                      Text(
+                        "Pendaftaran",
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: kPrimaryColor,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
                     ],
                   ),
                 ],
@@ -261,13 +385,33 @@ class JobSeekerWorkshopListPage extends StatelessWidget {
   Widget _buildFooterInfo(IconData icon, String text) {
     return Row(
       children: [
-        Icon(icon, size: 16, color: const Color(0xFFA53337)), // Merah gelap sesuai gambar
+        Icon(
+          icon,
+          size: 16,
+          color: const Color(0xFFA53337),
+        ), // Merah gelap sesuai gambar
         const SizedBox(width: 4),
-        Text(
-          text,
-          style: TextStyle(fontSize: 12, color: kSubtitleColor),
-        ),
+        Text(text, style: TextStyle(fontSize: 12, color: kSubtitleColor)),
       ],
     );
+  }
+
+  // Format tanggal ke format yang lebih readable
+  String _formatDate(DateTime date) {
+    final months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'Mei',
+      'Jun',
+      'Jul',
+      'Agu',
+      'Sep',
+      'Okt',
+      'Nov',
+      'Des',
+    ];
+    return "${date.day} ${months[date.month - 1]} ${date.year}";
   }
 }

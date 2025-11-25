@@ -7,10 +7,11 @@ import 'package:wirwa/screen/job_seeker/job.dart';
 class JobSeekerApplicationListController extends GetxController {
   final AuthRepository authRepository = Get.find();
   final JobApplicationRepository jobApplicationRepository = Get.find();
-
+  final UserRepository userRepository = Get.find();
   final List<JobApplicationWithVacancy> jobsRaw = [];
   final RxList<JobApplicationWithVacancy> jobs =
       <JobApplicationWithVacancy>[].obs;
+  final RxMap<String, UserRecruiter> recruiters = <String, UserRecruiter>{}.obs;
 
   final RxInt selectedFilterIndex = 0.obs;
 
@@ -33,26 +34,41 @@ class JobSeekerApplicationListController extends GetxController {
     jobApplicationRepository
         .getAllWithVacancy(authRepository.getUserId()!)
         .then((value) {
-      for (var entry in filtersStatus
-          .asMap()
-          .entries) {
-        filterCounts[entry.key] = value
-            .where(
-              (data) =>
-          data.application.status == entry.value,
-        )
-            .length;
+          for (var entry in filtersStatus.asMap().entries) {
+            filterCounts[entry.key] = value
+                .where((data) => data.application.status == entry.value)
+                .length;
+          }
+          jobsRaw.clear();
+          jobsRaw.insertAll(0, value);
+
+          for (var job in value) {
+            _fetchRecruiter(job.vacancy.recruiterId);
+          }
+
+          refreshFilter();
+        });
+  }
+
+  Future<void> _fetchRecruiter(String recruiterId) async {
+    if (!recruiters.containsKey(recruiterId)) {
+      try {
+        final recruiter = await userRepository.getRecruiterProfile(recruiterId);
+        if (recruiter != null) {
+          recruiters[recruiterId] = recruiter;
+        }
+      } catch (e) {
+        print("Error fetching recruiter: $e");
       }
-      jobsRaw.clear();
-      jobsRaw.insertAll(0, value);
-      refreshFilter();
-    });
+    }
   }
 
   void refreshFilter() {
     jobs.assignAll(
-        jobsRaw.where((data) =>
-        data.application.status == filtersStatus[selectedFilterIndex.value])
+      jobsRaw.where(
+        (data) =>
+            data.application.status == filtersStatus[selectedFilterIndex.value],
+      ),
     );
   }
 
@@ -63,7 +79,7 @@ class JobSeekerApplicationListController extends GetxController {
 
   void toDetail(String id) {
     Get.to(
-          () => JobSeekerJobPage(),
+      () => JobSeekerJobPage(),
       arguments: JobSeekerJobPage.createArguments(id),
     );
   }
@@ -107,14 +123,13 @@ class JobSeekerApplicationListPage extends StatelessWidget {
 
           Expanded(
             child: Obx(
-                  () =>
-              controller.jobs.isEmpty
+              () => controller.jobs.isEmpty
                   ? Center(
-                child: Text(
-                  "Belum ada riwayat",
-                  style: TextStyle(color: textGrey),
-                ),
-              )
+                      child: Text(
+                        "Belum ada riwayat",
+                        style: TextStyle(color: textGrey),
+                      ),
+                    )
                   : _list(context),
             ),
           ),
@@ -226,19 +241,47 @@ class JobSeekerApplicationListPage extends StatelessWidget {
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Container(
-                    width: 48,
-                    height: 48,
-                    decoration: BoxDecoration(
-                      color: Colors.grey[100],
-                      borderRadius: BorderRadius.circular(12),
-                      image: const DecorationImage(
-                        image: NetworkImage("https://via.placeholder.com/150"),
-                        fit: BoxFit.cover,
+                  // Logo Recruiter dari server
+                  Obx(() {
+                    final recruiter =
+                        controller.recruiters[job.vacancy.recruiterId];
+                    if (recruiter?.pictureUrl != null &&
+                        recruiter!.pictureUrl!.isNotEmpty) {
+                      return Container(
+                        width: 48,
+                        height: 48,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: Colors.grey.shade200),
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(12),
+                          child: Image.network(
+                            recruiter.pictureUrl!,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Container(
+                                color: Colors.grey[100],
+                                child: const Icon(
+                                  Icons.business,
+                                  color: Colors.grey,
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      );
+                    }
+                    return Container(
+                      width: 48,
+                      height: 48,
+                      decoration: BoxDecoration(
+                        color: Colors.grey[100],
+                        borderRadius: BorderRadius.circular(12),
                       ),
-                    ),
-                    child: const Icon(Icons.business, color: Colors.grey),
-                  ),
+                      child: const Icon(Icons.business, color: Colors.grey),
+                    );
+                  }),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(
@@ -255,10 +298,14 @@ class JobSeekerApplicationListPage extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                         ),
                         const SizedBox(height: 4),
-                        Text(
-                          "PT Pisang Kemul",
-                          style: TextStyle(color: textGrey, fontSize: 13),
-                        ),
+                        Obx(() {
+                          final recruiter =
+                              controller.recruiters[job.vacancy.recruiterId];
+                          return Text(
+                            recruiter?.name ?? "Memuat...",
+                            style: TextStyle(color: textGrey, fontSize: 13),
+                          );
+                        }),
                       ],
                     ),
                   ),
@@ -273,10 +320,7 @@ class JobSeekerApplicationListPage extends StatelessWidget {
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
-                      job.application.status
-                          .toString()
-                          .split('.')
-                          .last,
+                      job.application.status.toString().split('.').last,
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 11,

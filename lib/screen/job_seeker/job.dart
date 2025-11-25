@@ -88,9 +88,7 @@ class JobSeekerJobPage extends StatelessWidget {
   final Color kPrimaryColor = const Color(0xFFFF5A5F); // Warna merah utama
   final Color kTextColor = const Color(0xFF1F1F1F);
   final Color kSubtitleColor = const Color(0xFF8A8A8A);
-  final Color kBackgroundColor = const Color(
-    0xFFFFF5F7,
-  );
+  final Color kBackgroundColor = const Color(0xFFFFF5F7);
 
   @override
   Widget build(BuildContext context) {
@@ -156,11 +154,93 @@ class JobSeekerJobPage extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 20),
-              // Nama PT (Recruiter)
-              Text(
-                recruiter?.name ?? "Nama Perusahaan Tidak Tersedia",
-                style: const TextStyle(color: Colors.white70, fontSize: 16),
-              ),
+              // Logo Perusahaan - Reactive
+              Obx(() {
+                final rec = controller.recruiter.value;
+                print("Recruiter picture URL: ${rec?.pictureUrl}"); // Debug
+
+                return Container(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.1),
+                        blurRadius: 10,
+                        offset: const Offset(0, 3),
+                      ),
+                    ],
+                  ),
+                  child: rec?.pictureUrl != null && rec!.pictureUrl!.isNotEmpty
+                      ? CircleAvatar(
+                          radius: 35,
+                          backgroundColor: Colors.white,
+                          child: ClipOval(
+                            child: Image.network(
+                              rec.pictureUrl!,
+                              width: 70,
+                              height: 70,
+                              fit: BoxFit.cover,
+                              loadingBuilder:
+                                  (context, child, loadingProgress) {
+                                    if (loadingProgress == null) return child;
+                                    return Container(
+                                      width: 70,
+                                      height: 70,
+                                      color: Colors.white,
+                                      child: Center(
+                                        child: CircularProgressIndicator(
+                                          color: kPrimaryColor,
+                                          strokeWidth: 2,
+                                          value:
+                                              loadingProgress
+                                                      .expectedTotalBytes !=
+                                                  null
+                                              ? loadingProgress
+                                                        .cumulativeBytesLoaded /
+                                                    loadingProgress
+                                                        .expectedTotalBytes!
+                                              : null,
+                                        ),
+                                      ),
+                                    );
+                                  },
+                              errorBuilder: (context, error, stackTrace) {
+                                print("Error loading recruiter image: $error");
+                                return Container(
+                                  width: 70,
+                                  height: 70,
+                                  color: Colors.white,
+                                  child: Icon(
+                                    Icons.business,
+                                    size: 35,
+                                    color: kPrimaryColor,
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        )
+                      : CircleAvatar(
+                          radius: 35,
+                          backgroundColor: Colors.white,
+                          child: Icon(
+                            Icons.business,
+                            size: 35,
+                            color: kPrimaryColor,
+                          ),
+                        ),
+                );
+              }),
+              const SizedBox(height: 12),
+              // Nama PT (Recruiter) - Reactive
+              Obx(() {
+                final rec = controller.recruiter.value;
+                return Text(
+                  rec?.name ?? "Nama Perusahaan Tidak Tersedia",
+                  style: const TextStyle(color: Colors.white70, fontSize: 16),
+                );
+              }),
               const SizedBox(height: 8),
               // Judul Pekerjaan
               Text(
@@ -261,6 +341,30 @@ class JobSeekerJobPage extends StatelessWidget {
                     "Tanggal Berakhir",
                     _formatDate(job.endDate!),
                   ),
+
+                const SizedBox(height: 20),
+
+                const Text(
+                  "Tentang Perusahaan",
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 15),
+
+                if (recruiter != null) ...[
+                  _buildDetailRow(
+                    Icons.business,
+                    "Nama Perusahaan",
+                    recruiter.name,
+                  ),
+                  _buildDetailRow(
+                    Icons.apartment,
+                    "Tipe",
+                    recruiter.type == UserRecruiterType.COMPANY
+                        ? "Perusahaan"
+                        : "Perorangan",
+                  ),
+                  _buildDetailRow(Icons.phone, "Kontak", recruiter.phoneNumber),
+                ],
 
                 const SizedBox(height: 20),
 
@@ -372,24 +476,24 @@ class JobSeekerJobPage extends StatelessWidget {
     );
   }
 
-  // Poin untuk list kualifikasi/tanggung jawab
-  Widget _buildBulletPoint(String text) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8.0),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text("• ", style: TextStyle(color: kPrimaryColor, fontSize: 16)),
-          Expanded(
-            child: Text(
-              text,
-              style: TextStyle(color: kSubtitleColor, height: 1.5),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  // Poin untuk list kualifikasi/tanggung jawab (jika diperlukan di masa depan)
+  // Widget _buildBulletPoint(String text) {
+  //   return Padding(
+  //     padding: const EdgeInsets.only(bottom: 8.0),
+  //     child: Row(
+  //       crossAxisAlignment: CrossAxisAlignment.start,
+  //       children: [
+  //         Text("• ", style: TextStyle(color: kPrimaryColor, fontSize: 16)),
+  //         Expanded(
+  //           child: Text(
+  //             text,
+  //             style: TextStyle(color: kSubtitleColor, height: 1.5),
+  //           ),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
 
   Widget _buildDetailRow(IconData icon, String label, String value) {
     return Padding(
