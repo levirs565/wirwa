@@ -334,7 +334,7 @@ class JobSeekerJobListPage extends StatelessWidget {
                     child: Padding(
                       padding: const EdgeInsets.only(bottom: 50, top: 0),
                       child: Text(
-                        "ayo, cari pekerjaan\nsesuai dengan\ndirimu!",
+                        "Ayo, cari pekerjaan\nsesuai dengan\ndirimu!",
                         style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -488,7 +488,69 @@ class JobSeekerJobListPage extends StatelessWidget {
                 // Logo Perusahaan
                 Obx(() {
                   final recruiter = controller.recruiters[job.recruiterId];
-                  // Untuk sekarang pakai initial letter dari nama perusahaan
+                  final pictureUrl = recruiter?.pictureUrl;
+
+                  // Jika ada pictureUrl, tampilkan gambar
+                  if (pictureUrl != null && pictureUrl.isNotEmpty) {
+                    return Container(
+                      width: 48,
+                      height: 48,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: Colors.grey.shade200,
+                          width: 1,
+                        ),
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: Image.network(
+                          pictureUrl,
+                          width: 48,
+                          height: 48,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            // Fallback jika gambar gagal dimuat
+                            final initial =
+                                recruiter != null && recruiter.name.isNotEmpty
+                                ? recruiter.name[0].toUpperCase()
+                                : 'P';
+                            return Container(
+                              color: Colors.orange.shade50,
+                              child: Center(
+                                child: Text(
+                                  initial,
+                                  style: TextStyle(
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.orange,
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                          loadingBuilder: (context, child, loadingProgress) {
+                            if (loadingProgress == null) return child;
+                            return Container(
+                              color: Colors.orange.shade50,
+                              child: Center(
+                                child: CircularProgressIndicator(
+                                  color: Colors.orange,
+                                  strokeWidth: 2,
+                                  value:
+                                      loadingProgress.expectedTotalBytes != null
+                                      ? loadingProgress.cumulativeBytesLoaded /
+                                            loadingProgress.expectedTotalBytes!
+                                      : null,
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    );
+                  }
+      
                   final initial = recruiter != null && recruiter.name.isNotEmpty
                       ? recruiter.name[0].toUpperCase()
                       : 'P';
@@ -499,14 +561,6 @@ class JobSeekerJobListPage extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: Colors.orange.shade50,
                       borderRadius: BorderRadius.circular(12),
-                      // TODO: Tambahkan field pictureUrl di UserRecruiter model
-                      // Jika ada pictureUrl, gunakan:
-                      // image: recruiter?.pictureUrl != null
-                      //     ? DecorationImage(
-                      //         image: NetworkImage(recruiter!.pictureUrl),
-                      //         fit: BoxFit.cover,
-                      //       )
-                      //     : null,
                     ),
                     child: Center(
                       child: Text(
