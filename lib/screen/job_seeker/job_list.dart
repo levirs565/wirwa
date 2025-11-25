@@ -14,7 +14,6 @@ class JobSeekerJobListController extends GetxController {
   final Rxn<UserJobSeeker> currentUser = Rxn<UserJobSeeker>();
   final RxMap<String, UserRecruiter> recruiters = <String, UserRecruiter>{}.obs;
 
-  // Map untuk menyimpan status aplikasi per job
   final RxMap<String, JobApplication?> applications =
       <String, JobApplication?>{}.obs;
 
@@ -30,8 +29,36 @@ class JobSeekerJobListController extends GetxController {
   @override
   void onReady() {
     super.onReady();
-    _loadCurrentUser();
-    refresh();
+    _initialize();
+  }
+
+  @override
+  void onClose() {
+    // Clear data saat controller di-destroy
+    jobs.clear();
+    applications.clear();
+    recruiters.clear();
+    currentUser.value = null;
+    print("JobSeekerJobListController disposed");
+    super.onClose();
+  }
+
+  Future<void> _initialize() async {
+    try {
+      // Load user first
+      await _loadCurrentUser();
+
+      // Then refresh jobs
+      refresh();
+
+      // Delay check status sedikit untuk memastikan semua initialized
+      Future.delayed(Duration(milliseconds: 500), () {
+        _loadApplicationStatuses();
+      });
+    } catch (e, stackTrace) {
+      print("Error in initialization: $e");
+      print("Stack trace: $stackTrace");
+    }
   }
 
   Future<void> _loadCurrentUser() async {
@@ -39,6 +66,19 @@ class JobSeekerJobListController extends GetxController {
     if (userId != null) {
       final user = await userRepository.getJobSeekerProfile(userId);
       currentUser.value = user;
+    }
+  }
+
+  // Load status aplikasi secara terpisah setelah jobs loaded
+  Future<void> _loadApplicationStatuses() async {
+    if (authRepository.getUserId() == null) {
+      print("User not logged in, skipping application status load");
+      return;
+    }
+
+    print("Loading application statuses for ${jobs.length} jobs");
+    for (var job in jobs) {
+      await _checkApplicationStatus(job.id);
     }
   }
 
@@ -54,11 +94,14 @@ class JobSeekerJobListController extends GetxController {
           jobs.clear();
           jobs.insertAll(0, value);
 
-      // Fetch recruiter data untuk setiap job
-      for (var job in value) {
-        _fetchRecruiter(job.recruiterId);
-      }
-    });
+          for (var job in value) {
+            _fetchRecruiter(job.recruiterId);
+          }
+        })
+        .catchError((e, stackTrace) {
+          print("Error loading jobs: $e");
+          print("Stack trace: $stackTrace");
+        });
   }
 
   Future<void> _fetchRecruiter(String recruiterId) async {
@@ -77,14 +120,22 @@ class JobSeekerJobListController extends GetxController {
   // Method untuk cek apakah user sudah melamar job ini
   Future<void> _checkApplicationStatus(String jobId) async {
     final userId = authRepository.getUserId();
-    if (userId != null) {
-      try {
-        final application = await jobApplicationRepository.get(jobId, userId);
-        applications[jobId] = application;
-      } catch (e) {
-        print("Error checking application status: $e");
-        applications[jobId] = null;
-      }
+    if (userId == null) {
+      print("User not logged in, skipping application status check");
+      return;
+    }
+
+    try {
+      print("Checking application status for job: $jobId, user: $userId");
+      final application = await jobApplicationRepository.get(jobId, userId);
+      applications[jobId] = application;
+      print(
+        "Application status for $jobId: ${application != null ? 'Applied' : 'Not applied'}",
+      );
+    } catch (e, stackTrace) {
+      print("Error checking application status for job $jobId: $e");
+      print("Stack trace: $stackTrace");
+      applications[jobId] = null;
     }
   }
 
@@ -95,9 +146,8 @@ class JobSeekerJobListController extends GetxController {
 
   // Method untuk refresh status aplikasi setelah kembali dari detail
   Future<void> refreshApplicationStatus() async {
-    for (var job in jobs) {
-      await _checkApplicationStatus(job.id);
-    }
+    print("Refreshing application statuses after navigation");
+    await _loadApplicationStatuses();
   }
 
   void toDetail(String id) async {
@@ -114,19 +164,31 @@ class JobSeekerJobListController extends GetxController {
   void changeCategory(int index) {
     selectedCategoryIndex.value = index;
     refresh();
+    // Reload status setelah filter berubah
+    Future.delayed(Duration(milliseconds: 300), () {
+      _loadApplicationStatuses();
+    });
   }
 
   void setFilter(String filter) {
     textFilter = filter;
     refresh();
+    Future.delayed(Duration(milliseconds: 300), () {
+      _loadApplicationStatuses();
+    });
   }
 }
 
 // --- UI Page Utama ---
 class JobSeekerJobListPage extends StatelessWidget {
-  final JobSeekerJobListController controller = Get.put(
-    JobSeekerJobListController(),
-  );
+  JobSeekerJobListPage({Key? key}) : super(key: key);
+
+  JobSeekerJobListController get controller {
+    if (!Get.isRegistered<JobSeekerJobListController>()) {
+      return Get.put(JobSeekerJobListController(), tag: 'job_list');
+    }
+    return Get.find<JobSeekerJobListController>();
+  }
 
   // Definisi Warna sesuai gambar
   final Color kBackgroundColor = const Color(0xFFFFF5F7);
@@ -289,7 +351,7 @@ class JobSeekerJobListPage extends StatelessWidget {
                 child: TextField(
                   textAlignVertical: TextAlignVertical.center,
                   onChanged: controller.setFilter,
-              decoration: InputDecoration(
+                  decoration: InputDecoration(
                     hintText: "Cari Pekerjaan",
                     hintStyle: TextStyle(
                       color: Color(0xFF8A8A8A),

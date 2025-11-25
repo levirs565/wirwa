@@ -30,7 +30,7 @@ Future<void> main() async {
   await SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
-    DeviceOrientation.portraitDown
+    DeviceOrientation.portraitDown,
   ]);
 
   // Inisialisasi Supabase
@@ -41,7 +41,10 @@ Future<void> main() async {
   Get.put<AuthRepository>(AuthDataSource(), permanent: true);
   Get.put<UserRepository>(UserDataSource(), permanent: true);
   Get.put<JobVacancyRepository>(JobVacancyDataSource(), permanent: true);
-  Get.put<JobApplicationRepository>(JobApplicationDataSource(), permanent: true);
+  Get.put<JobApplicationRepository>(
+    JobApplicationDataSource(),
+    permanent: true,
+  );
   Get.put<WorkshopRepository>(WorkshopDataSource(), permanent: true);
   Get.put<ChatRepository>(ChatDataSource(), permanent: true);
 
@@ -62,6 +65,8 @@ class WirwaController extends GetxController {
     super.onReady();
     _authSubscription = authRepository.userChangedStream().listen((userId) {
       if (userId != _lastUserId) {
+        // Clear all controllers when user changes
+        _clearControllers();
         _lastUserId = userId;
         handleAuthChange();
       }
@@ -73,6 +78,16 @@ class WirwaController extends GetxController {
     Future.delayed(const Duration(seconds: 3), () {
       handleAuthChange();
     });
+  }
+
+  void _clearControllers() {
+    // Delete semua controller yang mungkin masih ada di memory
+    try {
+      Get.delete<dynamic>(force: true);
+      print("Cleared all controllers for user change");
+    } catch (e) {
+      print("Error clearing controllers: $e");
+    }
   }
 
   @override
@@ -105,7 +120,9 @@ class WirwaController extends GetxController {
       if (profile == null) {
         Get.off(JobSeekerNewProfilePage());
       } else {
-        Get.off(JobSeekerPage()); // Memanggil JobSeekerPage, bukan RecruiterPage
+        Get.off(
+          JobSeekerPage(),
+        ); // Memanggil JobSeekerPage, bukan RecruiterPage
       }
     }
   }

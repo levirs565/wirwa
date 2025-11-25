@@ -34,6 +34,17 @@ class RecruiterProfileController extends GetxController {
   }
 
   Future<void> logout() async {
+    // Clear semua controller sebelum logout
+    try {
+      Get.delete<RecruiterProfileController>(force: true);
+      // Delete controller lain juga
+      if (Get.isRegistered<dynamic>()) {
+        Get.deleteAll(force: true);
+      }
+    } catch (e) {
+      print("Error clearing controllers on logout: $e");
+    }
+
     await authRepository.signOut();
     Get.offAll(() => const LandingScreen());
   }

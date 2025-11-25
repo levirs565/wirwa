@@ -26,6 +26,17 @@ class JobSeekerProfileController extends GetxController {
   }
 
   Future<void> logout() async {
+    // Clear semua controller sebelum logout
+    try {
+      Get.delete<JobSeekerProfileController>(force: true);
+      // Delete controller lain juga
+      if (Get.isRegistered<dynamic>()) {
+        Get.deleteAll(force: true);
+      }
+    } catch (e) {
+      print("Error clearing controllers on logout: $e");
+    }
+
     await authRepository.signOut();
   }
 

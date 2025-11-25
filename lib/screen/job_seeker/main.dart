@@ -7,19 +7,30 @@ import 'package:wirwa/screen/job_seeker/workshop_list.dart';
 
 class JobSeekerController extends GetxController {
   final RxInt activePage = 0.obs;
+
+  @override
+  void onClose() {
+    print("JobSeekerController disposed");
+    super.onClose();
+  }
 }
 
 class JobSeekerPage extends StatelessWidget {
-  final JobSeekerController controller = Get.put(JobSeekerController());
+  JobSeekerPage({super.key});
 
-  final List<Widget> pages = [
+  JobSeekerController get controller {
+    if (!Get.isRegistered<JobSeekerController>()) {
+      return Get.put(JobSeekerController(), tag: 'job_seeker_main');
+    }
+    return Get.find<JobSeekerController>();
+  }
+
+  List<Widget> get pages => [
     JobSeekerJobListPage(),
     JobSeekerWorkshopListPage(),
     JobSeekerChatListPage(),
     JobSeekerProfilePage(),
   ];
-
-  JobSeekerPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -48,7 +59,12 @@ class JobSeekerPage extends StatelessWidget {
                 'Workshop',
                 1,
               ),
-              _buildNavItem(Icons.chat_bubble, Icons.chat_bubble_outline, 'Chat', 2),
+              _buildNavItem(
+                Icons.chat_bubble,
+                Icons.chat_bubble_outline,
+                'Chat',
+                2,
+              ),
               _buildNavItem(Icons.person, Icons.person_outline, 'Profil', 3),
             ],
           ),
