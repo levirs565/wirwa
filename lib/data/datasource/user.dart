@@ -66,7 +66,9 @@ class UserDataSource implements UserRepository {
   @override
   Future<String> uploadProfile(String id, File file) async {
     final path = "profile/$id";
-    await client.storage.from("files").upload(path, file);
+    await client.storage
+        .from("files")
+        .upload(path, file, fileOptions: FileOptions(upsert: true));
     final data = client.storage.from("files").getPublicUrl(path);
     return data;
   }
